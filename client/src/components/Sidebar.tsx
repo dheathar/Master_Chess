@@ -1,13 +1,30 @@
 import { useAuthStore } from "../store/useAuthStore";
 
-export type SidebarView = "dashboard" | "library" | "model" | "prescription" | "drill";
+export type SidebarView = "dashboard" | "library" | "model" | "progress" | "prescription" | "drill";
 
-const NAV_ITEMS: Array<{ key: SidebarView; label: string; icon: string }> = [
-  { key: "dashboard", label: "Games", icon: "▦" },
-  { key: "library", label: "Library", icon: "♜" },
-  { key: "model", label: "Player Model", icon: "◉" },
-  { key: "prescription", label: "Training Plan", icon: "☷" },
-  { key: "drill", label: "Drills", icon: "♟" },
+// Grouped so the nav itself teaches the loop: your material → diagnosis → training.
+const NAV_GROUPS: Array<{ title: string; items: Array<{ key: SidebarView; label: string; icon: string }> }> = [
+  {
+    title: "Your games",
+    items: [
+      { key: "dashboard", label: "Games", icon: "▦" },
+      { key: "library", label: "Library", icon: "♜" },
+    ],
+  },
+  {
+    title: "Diagnosis",
+    items: [
+      { key: "progress", label: "Progress", icon: "◆" },
+      { key: "model", label: "Player Model", icon: "◉" },
+    ],
+  },
+  {
+    title: "Training",
+    items: [
+      { key: "prescription", label: "Training Plan", icon: "☷" },
+      { key: "drill", label: "Drills", icon: "♟" },
+    ],
+  },
 ];
 
 export function Sidebar({
@@ -34,17 +51,22 @@ export function Sidebar({
       </div>
 
       <nav className="sidebar-nav">
-        {NAV_ITEMS.map((item) => (
-          <button
-            key={item.key}
-            type="button"
-            data-tour={`nav-${item.key}`}
-            className={`sidebar-nav-item ${active === item.key ? "active" : ""}`}
-            onClick={() => onNavigate(item.key)}
-          >
-            <span className="sidebar-nav-icon">{item.icon}</span>
-            <span>{item.label}</span>
-          </button>
+        {NAV_GROUPS.map((group) => (
+          <div key={group.title} className="sidebar-nav-group">
+            <div className="sidebar-nav-group-title">{group.title}</div>
+            {group.items.map((item) => (
+              <button
+                key={item.key}
+                type="button"
+                data-tour={`nav-${item.key}`}
+                className={`sidebar-nav-item ${active === item.key ? "active" : ""}`}
+                onClick={() => onNavigate(item.key)}
+              >
+                <span className="sidebar-nav-icon">{item.icon}</span>
+                <span>{item.label}</span>
+              </button>
+            ))}
+          </div>
         ))}
       </nav>
 

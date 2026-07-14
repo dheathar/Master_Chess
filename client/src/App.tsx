@@ -9,6 +9,7 @@ import { LibraryPage } from "./pages/LibraryPage";
 import { AccountPage } from "./pages/AccountPage";
 import { DrillPage } from "./pages/DrillPage";
 import { TrainingPlanPage } from "./pages/TrainingPlanPage";
+import { ProgressPage } from "./pages/ProgressPage";
 import { Sidebar, type SidebarView } from "./components/Sidebar";
 import { HelpLayer } from "./help/HelpLayer";
 import type { TourNav } from "./help/tourSteps";
@@ -21,6 +22,8 @@ function viewForSidebar(view: SidebarView): View {
       return { name: "library" };
     case "model":
       return { name: "model" };
+    case "progress":
+      return { name: "progress" };
     case "prescription":
       return { name: "prescription" };
     case "drill":
@@ -34,6 +37,7 @@ type View =
   | { name: "review"; gameId: string }
   | { name: "library" }
   | { name: "model" }
+  | { name: "progress" }
   | { name: "prescription" }
   | { name: "drill" }
   | { name: "account" };
@@ -81,6 +85,11 @@ export function App() {
           <AccountPage />
         ) : view.name === "model" ? (
           <PlayerModelPage />
+        ) : view.name === "progress" ? (
+          <ProgressPage
+            onNavigate={(next) => setView(viewForSidebar(next))}
+            onUpload={() => setView({ name: "upload" })}
+          />
         ) : view.name === "prescription" ? (
           <TrainingPlanPage />
         ) : view.name === "drill" ? (

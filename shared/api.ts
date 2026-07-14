@@ -398,3 +398,33 @@ export const helpChatResponseSchema = z.object({
   llmAvailable: z.boolean(),
 });
 export type HelpChatResponse = z.infer<typeof helpChatResponseSchema>;
+
+// ── Journey / progress ("guide to success") ─────────────────────────────
+
+export const journeyNextActionSchema = z.object({
+  title: z.string(),
+  detail: z.string(),
+  /** Sidebar destination for the CTA. */
+  screen: z.enum(["dashboard", "upload", "library", "model", "prescription", "drill"]),
+});
+export type JourneyNextAction = z.infer<typeof journeyNextActionSchema>;
+
+export const journeyResponseSchema = z.object({
+  stats: z.object({
+    gamesAnalyzed: z.number().int(),
+    evidencedSkillCount: z.number().int(),
+    level: z.string().nullable(),
+    levelName: z.string().nullable(),
+    plateauName: z.string().nullable(),
+    dueDrills: z.number().int(),
+    drillsCompleted: z.number().int(),
+    retentionPct: z.number().nullable(),
+  }),
+  /** Deterministic, fact-based bullet points about what the player has done. */
+  achievements: z.array(z.string()),
+  nextAction: journeyNextActionSchema,
+  /** AI-narrated coach's summary, grounded in the stats above. */
+  narrative: z.string(),
+  llmAvailable: z.boolean(),
+});
+export type JourneyResponse = z.infer<typeof journeyResponseSchema>;

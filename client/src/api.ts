@@ -6,6 +6,7 @@ import type {
   GameSummary,
   HelpChatMessage,
   HelpChatResponse,
+  JourneyResponse,
   LibraryGameSummary,
   LibraryGamesQuery,
   LibraryGamesResponse,
@@ -128,6 +129,10 @@ export async function helpChat(
     method: "POST",
     body: JSON.stringify({ messages, screen }),
   });
+}
+
+export async function getJourney(): Promise<JourneyResponse> {
+  return request<JourneyResponse>("/journey");
 }
 
 export async function getDueDrills(): Promise<{ drills: DueDrill[] }> {

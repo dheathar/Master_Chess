@@ -42,6 +42,12 @@ export const TOUR_STEPS: TourStep[] = [
     body: "A diagnosis across 27 skills, your level, and your plateau. Every score has a receipt — click a skill to see the exact moves behind it. No black box.",
   },
   {
+    navigate: "progress",
+    selector: "[data-tour='nav-progress']",
+    title: "Your guide to success",
+    body: "Progress is your coach's-eye view: where you are, what you've achieved, and the single highest-leverage thing to do next. Check it whenever you're unsure what to work on.",
+  },
+  {
     navigate: "prescription",
     selector: "[data-tour='nav-prescription']",
     title: "4 · Your training plan",
