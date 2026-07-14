@@ -299,8 +299,10 @@ Help assistant & Answers ``how do I\dots'' questions in chat & Fixed knowledge b
 
 In every case the same rule holds: \textbf{the AI may only rephrase what the
 engine and your data already establish.} It never sets a mastery number, never
-classifies a move, never chooses your next action (a fixed rule does that), and
-never invents chess advice. If the AI backend is unavailable, every one of these
+classifies a move, never chooses your next action (a fixed rule does that),
+never invents chess advice, never generates a drill hint (those are derived from
+the engine's best move), and \textbf{never plays your opponent in Play vs AI ---
+that is Stockfish}. If the AI backend is unavailable, every one of these
 surfaces degrades gracefully to a deterministic, engine-only version --- the app
 keeps working, just in plainer prose. The AI provider is pluggable
 (a self-hosted model by default), so no third-party service is required for the
@@ -458,10 +460,10 @@ diagnosis at all.
 % ===========================================================================
 
 This section is the ``how to play'' walkthrough: the screens, in the order you
-meet them. The left sidebar groups them into the three beats of the loop, so the
-navigation itself tells you where you are:
-\textbf{Your games} (Games, Library) $\rightarrow$ \textbf{Diagnosis} (Progress,
-Player Model) $\rightarrow$ \textbf{Training} (Training Plan, Drills).
+meet them. The left sidebar groups them so the navigation itself tells you where
+you are: \textbf{Play} (Play vs AI) $\rightarrow$ \textbf{Your games} (Games,
+Library) $\rightarrow$ \textbf{Diagnosis} (Progress, Player Model) $\rightarrow$
+\textbf{Training} (Training Plan, Drills).
 
 \begin{notebox}[First time in? Take the tour]
 On your first sign-in a short \textbf{guided tour} walks you through the whole
@@ -478,6 +480,21 @@ characters. New accounts are created as role \emph{player} on the \emph{free}
 tier. Sign-in is rate-limited (20 attempts per 15 minutes per address) and
 returns a session token stored in your browser; it slides forward for 14 days
 of activity.
+
+\subsection{Play vs AI}
+
+\emph{No game to upload yet? Play one.} Pick your colour and a difficulty from
+\textbf{Beginner} to \textbf{Max}, then play on an interactive board --- click a
+piece, then a highlighted square. Your opponent is \textbf{Stockfish}, never the
+language model: at lower levels it searches shallower and sometimes picks a
+weaker (but always legal) move; at Max it plays the engine's best every time.
+
+When the game ends, \textbf{Save \& analyse} runs it through the same pipeline as
+an uploaded game: it becomes one of \emph{your} games, so it feeds your player
+model and generates drills (the opponent is labelled ``Stockfish (Level~N)'' so
+practice games are easy to spot). This is the way to bootstrap a profile with no
+games to import --- and, unlike a loaded library classic, a game you played
+\emph{is} yours, so it counts.
 
 \subsection{The Dashboard (``Games'')}
 
@@ -1076,6 +1093,7 @@ explain, prescribe --- closing on your own moves.
 \begin{center}
 \begin{tabularx}{\linewidth}{@{}l Y@{}}
 \toprule
+\textbf{Play vs AI} & play Stockfish at 5 levels; save \& analyse to feed your model \\
 \textbf{Games} & dashboard: stats + recent games \\
 \textbf{Upload} & paste/drop PGN, live analysis \\
 \textbf{Game Review} & per-move engine analysis, accuracy, AI summary \\
