@@ -277,6 +277,35 @@ number, or verdict of its own. Any sentence that fails verification is
 discarded.
 \end{rulebox}
 
+\subsection{Where the AI is used --- and where it isn't}\label{sec:ai}
+
+Master Chess uses AI deliberately and narrowly. Everything that \emph{scores,
+judges, or decides} is deterministic --- the engine and fixed rules. The AI is a
+\textbf{language layer} that turns those verified facts into readable coaching,
+and answers your questions. It appears in exactly four places:
+
+\begin{center}
+\begin{tabularx}{\linewidth}{@{}l Y l@{}}
+\toprule
+\textbf{Where} & \textbf{What the AI does} & \textbf{Grounded by} \\
+\midrule
+Game Review summary & Writes the post-game coaching note from your result, accuracy, and worst move & Claim guard + deterministic fallback \\
+Prophylaxis notes & Phrases \emph{why} a defensive move mattered & Deterministic probe decides the score; AI only narrates \\
+Progress page & Writes your ``coach's summary'' from your real stats & Real numbers only + deterministic fallback \\
+Help assistant & Answers ``how do I\dots'' questions in chat & Fixed knowledge base; refuses out-of-scope \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+In every case the same rule holds: \textbf{the AI may only rephrase what the
+engine and your data already establish.} It never sets a mastery number, never
+classifies a move, never chooses your next action (a fixed rule does that), and
+never invents chess advice. If the AI backend is unavailable, every one of these
+surfaces degrades gracefully to a deterministic, engine-only version --- the app
+keeps working, just in plainer prose. The AI provider is pluggable
+(a self-hosted model by default), so no third-party service is required for the
+core loop.
+
 \subsection{How it runs}
 
 \begin{center}
@@ -364,10 +393,10 @@ alone.
 \end{xltabular}
 \end{center}
 
-\begin{notebox}[Known cosmetic discrepancy]
-The taxonomy of record contains \textbf{27} skills, and the API always returns
-all 27. Some on-screen copy still reads ``23 skills'' --- stale text from an
-earlier revision. The correct number is 27.
+\begin{notebox}[On the count]
+The taxonomy contains \textbf{27} skills across the four categories, and the app
+tracks and displays all 27. (How each one is scored is covered in
+\S\ref{sec:scoring}.)
 \end{notebox}
 
 \subsection{The 7 player levels}
@@ -429,7 +458,18 @@ diagnosis at all.
 % ===========================================================================
 
 This section is the ``how to play'' walkthrough: the screens, in the order you
-meet them.
+meet them. The left sidebar groups them into the three beats of the loop, so the
+navigation itself tells you where you are:
+\textbf{Your games} (Games, Library) $\rightarrow$ \textbf{Diagnosis} (Progress,
+Player Model) $\rightarrow$ \textbf{Training} (Training Plan, Drills).
+
+\begin{notebox}[First time in? Take the tour]
+On your first sign-in a short \textbf{guided tour} walks you through the whole
+loop, and a \textbf{``Try a demo game''} shortcut analyses a famous master game
+so you see a real review in seconds --- before you've uploaded anything. Both
+live behind the floating \textbf{?} button (bottom-right), which also opens the
+AI help assistant. See \S\ref{sec:help}.
+\end{notebox}
 
 \subsection{Register and sign in}
 
@@ -471,8 +511,13 @@ move you step to shows a \textbf{classification badge}, the centipawns lost, how
 long you thought, the engine's preferred move, and the top three engine lines.
 On the right: live analysis progress, a \textbf{Game accuracy} card (White vs
 Black, with the engine depth and a tally of each classification), the full move
-list, and an \textbf{Engine summary} coaching note --- either an LLM narrative
-badged ``engine-grounded'' or a deterministic fallback badged ``deterministic''.
+list, and an \textbf{Engine summary} coaching note. \emph{This note is the first
+place you meet the AI:} a language model writes it in plain English --- but only
+from verified facts (your result, accuracy, and worst move), and it is re-checked
+by the claim guard before you see it, so it is badged ``engine-grounded''. If the
+model is unavailable or its draft fails the check, you get a deterministic,
+engine-only summary badged ``deterministic'' instead. Either way, no sentence can
+contradict the engine (\S\ref{sec:ai}).
 
 \subsection{Player Model}
 
@@ -483,6 +528,24 @@ bars and trend arrows, and an \textbf{Evidence} panel. Click any skill with
 evidence and it loads up to 20 receipts --- the real moves behind the number,
 each marked as supporting the skill (\yes) or counting against it
 (\no).
+
+\subsection{Progress --- your guide to success}
+
+Headed \emph{``Where you are, what you've achieved, and the single best thing to
+do next.''} This is the screen to open whenever you're unsure what to work on. It
+shows three things:
+\begin{itemize}[leftmargin=1.4em, itemsep=1pt]
+  \item a \textbf{Coach's summary} --- \emph{AI-written}, in plain language,
+  grounded strictly in your real numbers (games analysed, evidenced skills,
+  level, plateau, drill retention). It never invents a statistic; if the model
+  is down you still get a deterministic summary of the same facts.
+  \item \textbf{Your next move} --- a single, concrete next action chosen by a
+  fixed rule, not the AI: upload your first game $\rightarrow$ analyse enough to
+  unlock a plan $\rightarrow$ clear today's drills $\rightarrow$ study your
+  lowest well-evidenced skill. A \textbf{Go} button takes you straight there.
+  \item \textbf{Key stats} and a \textbf{What you've done} list --- deterministic,
+  fact-by-fact, so the encouragement is always earned.
+\end{itemize}
 
 \subsection{Training Plan}
 
@@ -525,6 +588,24 @@ bundle (password fields stripped). \textbf{Delete} requires typing
 \code{DELETE}, then transactionally erases your data, tombstones the account,
 and logs you out. The deletion itself is recorded in an audit log for
 compliance.
+
+\subsection{Help, anytime}\label{sec:help}
+
+The floating \textbf{?} button (bottom-right, on every screen) opens three ways
+to get unstuck:
+\begin{itemize}[leftmargin=1.4em, itemsep=1pt]
+  \item \textbf{Take the guided tour} --- replays the eight-step walkthrough of
+  the whole loop; it auto-runs once on your first visit and is always skippable.
+  \item \textbf{Try a demo game} --- loads a famous master game and analyses it
+  immediately, with a short note explaining what you're watching, so you can see
+  a full review before uploading anything of your own.
+  \item \textbf{Ask the help assistant} --- a chat window backed by AI. Ask
+  ``how do I\dots'' or ``what does this mean'' in plain language and it explains,
+  referring you to the right screen. It answers \emph{only} from a curated
+  knowledge base about how Master Chess works, plus your own account context; it
+  will not invent features or chess advice, and it hands you off to the Account
+  page (or your administrator) for anything out of scope (\S\ref{sec:ai}).
+\end{itemize}
 
 % ===========================================================================
 \section{The Mechanics}\label{sec:mechanics}
@@ -644,6 +725,61 @@ The weight is derived from the threat's size, never from the language model.
 Probes are skipped when you were in check (the position would be illegal) and
 capped at six per game.
 \end{notebox}
+
+\subsection{How each skill is scored}\label{sec:scoring}
+
+Every skill's mastery comes from the same chain --- \emph{engine classifies your
+moves} $\rightarrow$ \emph{a fixed rule turns specific patterns into for/against
+evidence} $\rightarrow$ \emph{Bayesian Knowledge Tracing folds that evidence into
+a 0--100 number} (next subsection). What differs between skills is the
+\textbf{rule}: what, exactly, is measured. The Player Model shows this method in
+plain language for each skill, so a score is never a mystery. Here is the full
+map.
+
+\begin{center}
+\tabnum
+\begin{xltabular}{\linewidth}{@{}l Y@{}}
+\toprule
+\textbf{Skill} & \textbf{What is measured} \\
+\midrule
+\endhead
+\multicolumn{2}{@{}l}{\textbf{\color{forest}OPENING}}\\
+Opening principles & Errors in the first 20 plies count against; clean opening play counts lightly for. \\
+Opening repertoire & Replaying the same ECO line in 3+ games with low opening cp-loss counts for. Variety is never penalised. \\
+Opening prep \& novelties & Leaving the master-game book (moves 4--10) with an engine-approved move counts for (sound novelties only). \\
+\addlinespace
+\multicolumn{2}{@{}l}{\textbf{\color{forest}MIDDLEGAME}}\\
+Tactical consistency & A middlegame blunder counts against --- the ``did you blunder-check?'' measure. \\
+Tactical pattern recognition & Middlegame mistakes/blunders where the engine clearly saw better count against. \\
+Calculation precision & Missing a forced mate the engine had found counts heavily against. \\
+Piece activity \& coordination & Leaving your own piece attacked and undefended (on an error) counts against --- a real board check, not just cp-loss. \\
+Attack \& initiative & Growing an even position to clearly winning ($+5$) counts for. \\
+Defence \& counterplay & Being clearly worse ($-3$) yet drawing or winning counts for. A loss is not counted against. \\
+Converting advantages & Reaching a won position ($+400$cp) but not winning counts strongly against. \\
+Prophylaxis & A null-move engine probe gauges a position's standing threat; a real threat you let land counts against, one you neutralised counts for. \\
+\addlinespace
+\multicolumn{2}{@{}l}{\textbf{\color{forest}ENDGAME}}\\
+Endgame principles & Endgame mistakes/blunders count against; sound endgame play counts lightly for. \\
+Endgame precision \& conversion & Endgame cp-loss counts against --- precision once the board simplifies. \\
+Pawn / rook / knight / bishop endings & The same endgame errors are \emph{also} attributed to the specific piece-type ending they occurred in. \\
+\addlinespace
+\multicolumn{2}{@{}l}{\textbf{\color{forest}PSYCHOLOGY \& MENTAL}}\\
+Time management & A blunder/mistake played in under 3 seconds counts against. \\
+Thought process \& candidate moves & A blunder/mistake after 90+ seconds of thought counts against (had time, still missed it). \\
+Psychological resilience & The spread of your cp-losses and whether errors spiked after your first blunder (``tilt'') vs. stayed controlled. \\
+\bottomrule
+\end{xltabular}
+\end{center}
+
+\begin{rulebox}{``Not yet scored'' is a real answer}
+Seven of the 27 skills have no honest rule yet, because they need judgment
+beyond move classification: \emph{strategic planning}, \emph{positional play},
+\emph{patience \& long-term thinking}, \emph{game transition}, \emph{pattern-
+recognition speed}, \emph{intuition \& practical judgment}, and \emph{psychological
+warfare}. Rather than show a made-up number, the app marks these \textbf{Not yet
+scored}. So a blank skill means ``not measured yet'' --- never ``you are bad at
+this.''
+\end{rulebox}
 
 \subsection{Bayesian Knowledge Tracing: how a score moves}
 
@@ -929,12 +1065,14 @@ explain, prescribe --- closing on your own moves.
 \toprule
 \textbf{Games} & dashboard: stats + recent games \\
 \textbf{Upload} & paste/drop PGN, live analysis \\
-\textbf{Game Review} & per-move engine analysis, accuracy, summary \\
+\textbf{Game Review} & per-move engine analysis, accuracy, AI summary \\
+\textbf{Progress} & AI coach's summary + your single next move \\
 \textbf{Player Model} & level, plateau, 27 skills, evidence receipts \\
 \textbf{Training Plan} & hypothesis + 3 focus blocks + books \\
 \textbf{Drills} & SM-2 review of your own mistakes \\
-\textbf{Library} & classic games + opening explorer \\
+\textbf{Library} & searchable master games + opening explorer \\
 \textbf{Account} & GDPR export / delete \\
+\textbf{? (help)} & guided tour, demo game, AI help chat \\
 \bottomrule
 \end{tabularx}
 \end{center}
