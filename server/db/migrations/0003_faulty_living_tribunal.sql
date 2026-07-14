@@ -1,0 +1,1 @@
+ALTER TABLE `moves` ADD `missed_mate` integer;

@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Master Chess · Architecture &amp; Roadmap</title>
+<style>
+  :root {
+    --bg:          #F5F2EC;
+    --surface:     #FFFFFF;
+    --surface-2:   #EFECE5;
+    --border:      #D8D3C8;
+    --text-1:      #191A1F;
+    --text-2:      #52596B;
+    --text-3:      #8892A4;
+    --gold:        #A87E0A;
+    --gold-bg:     #FDF6E0;
+    --gold-border: #E8C95A;
+    --blue:        #2B6FA8;
+    --blue-bg:     #EBF4FF;
+    --blue-border: #89BCE8;
+    --red:         #B04040;
+    --red-bg:      #FDEEED;
+    --red-border:  #E8A4A4;
+    --green:       #3A8A54;
+    --green-bg:    #E9F7EC;
+    --green-border:#A6D9B4;
+    --accent:      #A87E0A;
+    --header-bg:   #0B1018;
+    --header-text: #E8EDF5;
+    --chess-gold:  #C9A030;
+    --mono: 'Courier New', monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg:          #0B1018;
+      --surface:     #141E2B;
+      --surface-2:   #1A2739;
+      --border:      #1E2D42;
+      --text-1:      #E8EDF5;
+      --text-2:      #9AAEC5;
+      --text-3:      #5C7090;
+      --gold:        #D4A843;
+      --gold-bg:     #1A1600;
+      --gold-border: #5C4A10;
+      --blue:        #5B9FD4;
+      --blue-bg:     #0A1829;
+      --blue-border: #1E4068;
+      --red:         #D46060;
+      --red-bg:      #1F0A0A;
+      --red-border:  #5A1E1E;
+      --green:       #6BBF7A;
+      --green-bg:    #0C1A0F;
+      --green-border:#1E4527;
+      --accent:      #D4A843;
+      --header-bg:   #060A0F;
+      --header-text: #E8EDF5;
+    }
+  }
+
+  :root[data-theme="light"] {
+    --bg: #F5F2EC; --surface: #FFFFFF; --surface-2: #EFECE5; --border: #D8D3C8;
+    --text-1: #191A1F; --text-2: #52596B; --text-3: #8892A4;
+    --gold: #A87E0A; --gold-bg: #FDF6E0; --gold-border: #E8C95A;
+    --blue: #2B6FA8; --blue-bg: #EBF4FF; --blue-border: #89BCE8;
+    --red: #B04040; --red-bg: #FDEEED; --red-border: #E8A4A4;
+    --green: #3A8A54; --green-bg: #E9F7EC; --green-border: #A6D9B4;
+    --accent: #A87E0A; --header-bg: #0B1018; --header-text: #E8EDF5;
+  }
+
+  :root[data-theme="dark"] {
+    --bg: #0B1018; --surface: #141E2B; --surface-2: #1A2739; --border: #1E2D42;
+    --text-1: #E8EDF5; --text-2: #9AAEC5; --text-3: #5C7090;
+    --gold: #D4A843; --gold-bg: #1A1600; --gold-border: #5C4A10;
+    --blue: #5B9FD4; --blue-bg: #0A1829; --blue-border: #1E4068;
+    --red: #D46060; --red-bg: #1F0A0A; --red-border: #5A1E1E;
+    --green: #6BBF7A; --green-bg: #0C1A0F; --green-border: #1E4527;
+    --accent: #D4A843; --header-bg: #060A0F; --header-text: #E8EDF5;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+    background: var(--bg);
+    color: var(--text-1);
+  }
+
+  /* ── Header ── */
+  .site-header {
+    background: var(--header-bg);
+    position: relative;
+    overflow: hidden;
+    padding: 52px 32px 40px;
+  }
+  .site-header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      repeating-linear-gradient(0deg,   transparent, transparent 39px, rgba(201,160,48,.06) 39px, rgba(201,160,48,.06) 40px),
+      repeating-linear-gradient(90deg,  transparent, transparent 39px, rgba(201,160,48,.06) 39px, rgba(201,160,48,.06) 40px);
+    pointer-events: none;
+  }
+  .header-inner { position: relative; max-width: 940px; margin: 0 auto; }
+  .header-eyebrow {
+    font-size: 11px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--chess-gold); margin-bottom: 14px;
+  }
+  .header-title {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: clamp(28px, 4vw, 42px);
+    font-weight: normal; line-height: 1.15; color: var(--header-text);
+    text-wrap: balance; margin-bottom: 12px; max-width: 720px;
+  }
+  .header-subtitle { font-size: 14.5px; color: #8DA0BA; max-width: 640px; line-height: 1.6; }
+  .header-meta {
+    display: flex; flex-wrap: wrap; gap: 24px; margin-top: 28px; padding-top: 20px;
+    border-top: 1px solid #1E2D42;
+  }
+  .header-meta-item { font-size: 12px; color: #5C7090; }
+  .header-meta-item strong { color: #9AAEC5; font-weight: 500; }
+
+  /* ── Nav ── */
+  .toc {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; z-index: 10;
+  }
+  .toc-inner {
+    max-width: 940px; margin: 0 auto; padding: 12px 24px;
+    display: flex; gap: 4px; overflow-x: auto;
+  }
+  .toc a {
+    font-size: 12.5px; color: var(--text-2); text-decoration: none;
+    padding: 6px 12px; border-radius: 5px; white-space: nowrap; flex-shrink: 0;
+  }
+  .toc a:hover { background: var(--surface-2); color: var(--text-1); }
+
+  /* ── Content ── */
+  .content { max-width: 940px; margin: 0 auto; padding: 44px 24px 90px; }
+  .section { margin-bottom: 56px; scroll-margin-top: 60px; }
+  .section-header {
+    display: flex; align-items: baseline; gap: 10px; margin-bottom: 18px;
+    padding-bottom: 10px; border-bottom: 1px solid var(--border);
+  }
+  .section-marker { font-size: 18px; opacity: .55; flex-shrink: 0; }
+  .section-title {
+    font-family: Georgia, 'Times New Roman', serif; font-size: 21px;
+    font-weight: normal; color: var(--text-1);
+  }
+  .section-sub { font-size: 12.5px; color: var(--text-3); margin-left: auto; }
+
+  p { color: var(--text-2); margin-bottom: 14px; max-width: 74ch; }
+  p:last-child { margin-bottom: 0; }
+  p.lede { font-size: 16px; color: var(--text-1); max-width: 70ch; }
+  strong { color: var(--text-1); font-weight: 600; }
+  code {
+    font-family: var(--mono); font-size: 0.88em; background: var(--surface-2);
+    border: 1px solid var(--border); border-radius: 3px; padding: 1px 5px; color: var(--text-1);
+  }
+
+  /* ── Positioning grid ── */
+  .position-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 10px; margin-top: 18px;
+  }
+  .position-card {
+    background: var(--red-bg); border: 1px solid var(--red-border); border-radius: 6px;
+    padding: 14px 16px;
+  }
+  .position-card.us {
+    background: var(--gold-bg); border-color: var(--gold-border);
+  }
+  .position-card-title {
+    font-size: 12.5px; font-weight: 700; letter-spacing: .03em; margin-bottom: 6px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .position-card.us .position-card-title { color: var(--gold); }
+  .position-card:not(.us) .position-card-title { color: var(--red); }
+  .position-card-body { font-size: 12.5px; color: var(--text-2); line-height: 1.55; }
+
+  /* ── Loops diagram ── */
+  .loops {
+    display: grid; grid-template-columns: 1fr auto 1fr; gap: 16px; align-items: stretch;
+    margin: 20px 0;
+  }
+  .loop-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+    padding: 18px 20px;
+  }
+  .loop-card h4 {
+    font-family: Georgia, serif; font-weight: normal; font-size: 15.5px;
+    color: var(--text-1); margin-bottom: 8px;
+  }
+  .loop-card p { font-size: 12.5px; margin-bottom: 0; }
+  .loop-arrow {
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-3); font-size: 20px;
+  }
+  .loop-note {
+    background: var(--blue-bg); border: 1px solid var(--blue-border); border-radius: 6px;
+    padding: 12px 16px; font-size: 12.5px; color: var(--text-2); margin-top: 14px;
+  }
+  .loop-note strong { color: var(--blue); }
+
+  @media (max-width: 620px) {
+    .loops { grid-template-columns: 1fr; }
+    .loop-arrow { transform: rotate(90deg); padding: 4px 0; }
+  }
+
+  /* ── Feature cards (unseen functionality) ── */
+  .feature-list { display: flex; flex-direction: column; gap: 14px; }
+  .feature-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+    padding: 18px 22px; display: grid; grid-template-columns: 30px 1fr; gap: 14px;
+  }
+  .feature-glyph {
+    font-size: 20px; color: var(--gold); line-height: 1.4; text-align: center;
+  }
+  .feature-name {
+    font-family: Georgia, serif; font-size: 16px; color: var(--text-1);
+    margin-bottom: 5px; display: flex; align-items: center; gap: 10px;
+  }
+  .feature-tag {
+    font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+    background: var(--gold-bg); color: var(--gold); border: 1px solid var(--gold-border);
+    border-radius: 3px; padding: 2px 7px;
+  }
+  .feature-card p { font-size: 13px; margin-bottom: 0; }
+
+  /* ── Folder tree ── */
+  .tree-block {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+    padding: 18px 22px; overflow-x: auto;
+  }
+  .tree-block pre {
+    font-family: var(--mono); font-size: 12px; line-height: 1.65; color: var(--text-2);
+    white-space: pre;
+  }
+  .tree-block .hl { color: var(--gold); font-weight: 700; }
+
+  /* ── Schema table ── */
+  .table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 8px; }
+  table { width: 100%; border-collapse: collapse; font-size: 12.5px; min-width: 640px; }
+  thead th {
+    text-align: left; font-size: 10.5px; letter-spacing: .05em; text-transform: uppercase;
+    color: var(--text-3); background: var(--surface-2); padding: 10px 14px;
+    border-bottom: 1px solid var(--border); white-space: nowrap;
+  }
+  tbody td {
+    padding: 10px 14px; border-bottom: 1px solid var(--border); color: var(--text-2);
+    vertical-align: top;
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody td.table-name { color: var(--text-1); font-weight: 600; font-family: var(--mono); font-size: 12px; }
+  tbody td.cols { font-family: var(--mono); font-size: 11.5px; }
+  .ms-chip {
+    font-size: 10px; font-weight: 700; letter-spacing: .04em; border-radius: 3px;
+    padding: 2px 7px; white-space: nowrap;
+  }
+  .ms-m0 { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+  .ms-m1 { background: var(--gold-bg); color: var(--gold); border: 1px solid var(--gold-border); }
+  .ms-later { background: var(--surface-2); color: var(--text-3); border: 1px solid var(--border); }
+
+  /* ── Pipeline steps ── */
+  .pipeline {
+    display: flex; flex-direction: column; gap: 0; border: 1px solid var(--border);
+    border-radius: 8px; overflow: hidden;
+  }
+  .pipeline-step {
+    display: grid; grid-template-columns: 200px 1fr; gap: 16px;
+    padding: 14px 18px; border-bottom: 1px solid var(--border); background: var(--surface);
+  }
+  .pipeline-step:last-child { border-bottom: none; }
+  .pipeline-step-name {
+    font-family: var(--mono); font-size: 12.5px; font-weight: 700; color: var(--gold);
+  }
+  .pipeline-step-desc { font-size: 12.5px; color: var(--text-2); }
+  @media (max-width: 600px) {
+    .pipeline-step { grid-template-columns: 1fr; gap: 4px; }
+  }
+
+  /* ── Milestone timeline ── */
+  .milestones { display: flex; flex-direction: column; gap: 10px; }
+  .milestone-row {
+    display: grid; grid-template-columns: 64px 1fr; gap: 16px;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+    padding: 16px 20px;
+  }
+  .milestone-row.built {
+    border-color: var(--green-border); background: var(--green-bg);
+  }
+  .milestone-tag {
+    font-family: var(--mono); font-weight: 700; font-size: 15px; color: var(--text-3);
+    align-self: start;
+  }
+  .milestone-row.built .milestone-tag { color: var(--green); }
+  .milestone-title {
+    font-weight: 600; color: var(--text-1); margin-bottom: 4px; font-size: 14px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .milestone-status {
+    font-size: 10px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
+    border-radius: 3px; padding: 2px 7px; background: var(--green); color: #06180a;
+  }
+  .milestone-demo { font-size: 12.5px; color: var(--text-2); }
+  .milestone-demo em { color: var(--text-1); font-style: normal; font-weight: 500; }
+
+  /* ── Verification checklist ── */
+  .checklist { display: flex; flex-direction: column; gap: 8px; }
+  .check-item {
+    display: grid; grid-template-columns: 20px 1fr; gap: 10px; align-items: start;
+    background: var(--green-bg); border: 1px solid var(--green-border); border-radius: 6px;
+    padding: 10px 14px; font-size: 13px;
+  }
+  .check-item .mark { color: var(--green); font-weight: 700; }
+  .check-item span:last-child { color: var(--text-1); }
+
+  /* ── Footer note ── */
+  .doc-footer {
+    text-align: center; font-size: 11.5px; color: var(--text-3); margin-top: 60px;
+    padding-top: 20px; border-top: 1px solid var(--border);
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <div class="header-eyebrow">♚ Master Chess · Standalone Architecture</div>
+    <h1 class="header-title">AI-Enhanced Master Chess — Architecture &amp; Roadmap</h1>
+    <p class="header-subtitle">
+      Diagnose → Explain → Prescribe. A standalone app, independent of the sibling classroom product, that turns a player's own games into an explainable, evidence-backed training plan — grounded in engine truth, never LLM guesswork.
+    </p>
+    <div class="header-meta">
+      <div class="header-meta-item">Status: <strong>M0 + M1 built this session</strong></div>
+      <div class="header-meta-item">Stack: <strong>React · Express · Drizzle/SQLite · Stockfish · Vitest</strong></div>
+      <div class="header-meta-item">Location: <strong>ai_chess/</strong></div>
+    </div>
+  </div>
+</header>
+
+<nav class="toc">
+  <div class="toc-inner">
+    <a href="#positioning">Positioning</a>
+    <a href="#loops">Two loops</a>
+    <a href="#features">Unseen features</a>
+    <a href="#architecture">Architecture</a>
+    <a href="#schema">Schema</a>
+    <a href="#pipeline">Pipeline</a>
+    <a href="#milestones">Milestones</a>
+    <a href="#verification">Verification</a>
+  </div>
+</nav>
+
+<main class="content">
+
+  <section class="section" id="positioning">
+    <div class="section-header">
+      <span class="section-marker">♟</span>
+      <h2 class="section-title">Positioning</h2>
+    </div>
+    <p class="lede">Every competitor in this space runs Stockfish and produces, at best, a thin narrative layer on top of engine lines. None of them close the loop from diagnosis to a prioritized, evidence-backed training plan.</p>
+    <div class="position-grid">
+      <div class="position-card">
+        <div class="position-card-title">✕ Chess.com / Aimchess</div>
+        <div class="position-card-body">Engine analysis with limited narrative. Academy tier is a directory listing, not real multi-student diagnostics. Aimchess is stats-only, no coaching narrative, owned by Chess.com — a conflict of interest for independent academies.</div>
+      </div>
+      <div class="position-card">
+        <div class="position-card-title">✕ Lichess</div>
+        <div class="position-card-body">Engine lines only, free and open-source. No persistent player model, no coaching narrative, no training prescription.</div>
+      </div>
+      <div class="position-card">
+        <div class="position-card-title">✕ Chessvia / Chessiro</div>
+        <div class="position-card-body">LLM wrapper over a Stockfish engine. No pattern diagnosis across games, no Academy tier, no B2B offering.</div>
+      </div>
+      <div class="position-card us">
+        <div class="position-card-title">✓ Master Chess</div>
+        <div class="position-card-body">The only platform closing the full Diagnose → Explain → Prescribe loop: a persistent, explainable player model over 23 skills, engine-grounded evidence for every claim, and novel AI-native training mechanisms no competitor has attempted.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="loops">
+    <div class="section-header">
+      <span class="section-marker">♞</span>
+      <h2 class="section-title">The Two Learning Loops</h2>
+    </div>
+    <p>Per the SRS, "learning" happens in exactly two places. The LLM is not one of them — it explains and prescribes, but it never learns and never overrides engine truth.</p>
+    <div class="loops">
+      <div class="loop-card">
+        <h4>Player Model &amp; Skill-Tracking Engine</h4>
+        <p>A persistent, structured representation of the player across 23 skills (4 categories, 7 levels), updated by Bayesian Knowledge Tracing from engine-verified evidence in every game.</p>
+      </div>
+      <div class="loop-arrow">+</div>
+      <div class="loop-card">
+        <h4>Chess Knowledge Layer</h4>
+        <p>Engine and tablebase ground truth, opening/master-game data, and a 65-title book corpus mapped to the skill taxonomy.</p>
+      </div>
+    </div>
+    <div class="loop-note">
+      <strong>AI Reasoning Layer</strong> sits on top of both, producing prose and structuring prescriptions. Provider-abstracted, model-tiered by subscription, and always subordinate to engine ground truth — a runtime claim-guard rejects any generated text that contradicts a verified move or evaluation.
+    </div>
+  </section>
+
+  <section class="section" id="features">
+    <div class="section-header">
+      <span class="section-marker">♝</span>
+      <h2 class="section-title">Unseen Functionality — the Differentiators</h2>
+      <span class="section-sub">phased M2–M5</span>
+    </div>
+    <p>Each of these is a genuine mechanism, not a marketing label — designed for from day one so the schema and pipeline don't need rework later.</p>
+    <div class="feature-list">
+      <div class="feature-card">
+        <div class="feature-glyph">♞</div>
+        <div>
+          <div class="feature-name">Shadow Twin <span class="feature-tag">M5</span></div>
+          <p>A sparring bot that plays like <em>you</em>. Built from your own error distribution — per phase and skill-demand, the probability of {best, good, inaccuracy, mistake, blunder} — sampled from Stockfish's multipv candidates, contextually reweighted by which skills the position currently demands. A "beat your past self" ladder tracks win rate against successive snapshots of your own error model. The same selector, fed an opponent's profile, powers the Dossier imitation bot.</p>
+        </div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-glyph">🔍</div>
+        <div>
+          <div class="feature-name">Evidence Receipts <span class="feature-tag">M2</span></div>
+          <p>Every skill score is a claim, and every claim has a receipt. The <code>evidence</code> table logs the exact move behind every rule that fires — click any skill number and jump straight to the moves that prove it. Falls out of the pipeline design for free rather than being bolted on.</p>
+        </div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-glyph">↺</div>
+        <div>
+          <div class="feature-name">Counterfactual Time Machine <span class="feature-tag">M5</span></div>
+          <p>Branch from any critical moment: "what if I'd played the top engine move instead?" The engine replays forward from the branch, both sides played at matched strength, so you see the position six moves later — not just the one move you missed.</p>
+        </div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-glyph">◎</div>
+        <div>
+          <div class="feature-name">Eval-Calibration Trainer <span class="feature-tag">M3</span></div>
+          <p>Predict the evaluation before it's revealed. The calibration gap — not raw accuracy — is tracked as its own metacognitive skill, distinguishing chronic overconfidence from chronic blindness, because the fix for each is different.</p>
+        </div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-glyph">◈</div>
+        <div>
+          <div class="feature-name">Opponent-Prep Dossier <span class="feature-tag">M5</span></div>
+          <p>Ingest an opponent's public games through the identical pipeline, tagged "opponent" instead of "self." Produces a tendency report and feeds a Shadow-Twin-style bot that simulates your actual next opponent for pre-tournament sparring.</p>
+        </div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-glyph">⚔</div>
+        <div>
+          <div class="feature-name">Multi-Coach Debate Panel <span class="feature-tag">M4</span></div>
+          <p>Ambiguous positions spin up 2-3 coach personas arguing different plans, citing engine lines. The student picks a side and states why; the engine arbitrates. Structured disagreement instead of "just tell me the answer."</p>
+        </div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-glyph">⏱</div>
+        <div>
+          <div class="feature-name">Tilt / Fatigue Telemetry <span class="feature-tag">M5</span></div>
+          <p>Chess.com and Lichess exports already carry <code>%clk</code> per move. Cross-referencing move time against accuracy surfaces tilt patterns and recommends breaks before they happen again — no wearable required, the signal is already in the PGN.</p>
+        </div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-glyph">▲</div>
+        <div>
+          <div class="feature-name">Plateau-Breaker Programs <span class="feature-tag">M5</span></div>
+          <p>The five named plateaus (Blunder Wall, Strategy Desert, Conversion Ceiling, Prophylaxis Gap, Precision Boundary) are auto-diagnosed from the skill vector's shape. Each triggers a sequenced multi-week program with a stated hypothesis and a checkpoint re-diagnosis.</p>
+        </div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-glyph">✦</div>
+        <div>
+          <div class="feature-name">Own-Mistake Drills <span class="feature-tag">M3</span></div>
+          <p>Every drill comes from a position you actually reached and misplayed — not a generic puzzle. SM-2-lite spacing brings it back until it's fixed. The simplest feature here, and the most concretely differentiating one.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="architecture">
+    <div class="section-header">
+      <span class="section-marker">♜</span>
+      <h2 class="section-title">Repo Layout</h2>
+    </div>
+    <p>Single <code>package.json</code>, no workspaces — sufficient at this scale, avoids multi-tsconfig friction. Isomorphic domain logic in <code>shared/</code> is imported by relative path (via a <code>@shared/*</code> alias) from both server and client.</p>
+    <div class="tree-block">
+<pre>ai_chess/
+├── package.json              <span class="hl">← built</span>
+├── shared/                   <span class="hl">← built</span>
+│   ├── taxonomy.ts             23 skills / 4 categories / 7 levels / 5 plateaus
+│   ├── classification.ts       cp-loss → move-quality thresholds
+│   ├── bkt.ts                  Bayesian Knowledge Tracing (ported)
+│   ├── reviewSchedule.ts       SM-2-lite (ported)
+│   ├── fen.ts                  material / phase helpers
+│   └── api.ts                  zod request/response schemas
+├── server/
+│   ├── index.ts               <span class="hl">← built</span>
+│   ├── db/                    <span class="hl">← built</span>  schema.ts (18 tables), client.ts, migrations/
+│   ├── auth/                  <span class="hl">← built</span>  password, authService, middleware, gdpr, usageQuota
+│   ├── engine/                <span class="hl">← built</span>  stockfish.ts, enginePool.ts, evalCache.ts
+│   ├── pipeline/               <span class="hl">← built</span>  pgnIngest, evaluator, classifier, analysisQueue
+│   ├── routes/                 <span class="hl">← built</span>  auth.ts, games.ts
+│   ├── llm/                     provider abstraction — M4
+│   ├── agents/                  ported agent loop, coach chat, debate panel — M4
+│   ├── features/                shadowTwin, counterfactual, calibration, tilt, dossier — M5
+│   └── prescription/            prescriptionEngine, bookCorpus, drillFactory — M3
+├── client/src/                <span class="hl">← built</span>  Auth, Dashboard, Upload, GameReview + Board/EvalBar
+├── eval/                      <span class="hl">← built</span>  ground-truth corpus + vitest QA suites
+└── data/                      gitignored: sqlite file, fixtures</pre>
+    </div>
+  </section>
+
+  <section class="section" id="schema">
+    <div class="section-header">
+      <span class="section-marker">♛</span>
+      <h2 class="section-title">Database Schema</h2>
+      <span class="section-sub">SQLite via Drizzle, Postgres-ready</span>
+    </div>
+    <p>All 18 tables are defined in <code>schema.ts</code> from day one so migrations stay linear as later milestones activate their tables. Text UUID PKs, epoch-ms timestamps, and JSON-as-text columns keep a later Postgres migration a driver change, not a rewrite.</p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Table</th><th>Key columns</th><th>Milestone</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="table-name">users</td><td class="cols">role, tier, deleted_at</td><td><span class="ms-chip ms-m0">M0</span></td></tr>
+          <tr><td class="table-name">sessions</td><td class="cols">token, expires_at</td><td><span class="ms-chip ms-m0">M0</span></td></tr>
+          <tr><td class="table-name">usage_counters</td><td class="cols">subject_key, day, analyses_used</td><td><span class="ms-chip ms-m0">M0</span></td></tr>
+          <tr><td class="table-name">audit_log</td><td class="cols">action, entity, detail_json</td><td><span class="ms-chip ms-m0">M0</span></td></tr>
+          <tr><td class="table-name">games</td><td class="cols">pgn_raw, player_color, opening_eco</td><td><span class="ms-chip ms-m1">M1</span></td></tr>
+          <tr><td class="table-name">moves</td><td class="cols">san, uci, fen_before/after, eval_cp, classification</td><td><span class="ms-chip ms-m1">M1</span></td></tr>
+          <tr><td class="table-name">eval_cache</td><td class="cols">fen_key + depth + multipv → lines_json</td><td><span class="ms-chip ms-m1">M1</span></td></tr>
+          <tr><td class="table-name">analyses</td><td class="cols">status, progress, summary_json</td><td><span class="ms-chip ms-m1">M1</span></td></tr>
+          <tr><td class="table-name">skill_scores</td><td class="cols">skill_id, p_know, mastery, trend</td><td><span class="ms-chip ms-later">M2</span></td></tr>
+          <tr><td class="table-name">evidence</td><td class="cols">move_id, direction, weight, rule_id</td><td><span class="ms-chip ms-later">M2</span></td></tr>
+          <tr><td class="table-name">player_snapshots</td><td class="cols">skill_vector_json, level, plateau</td><td><span class="ms-chip ms-later">M2</span></td></tr>
+          <tr><td class="table-name">prescriptions / drills</td><td class="cols">plan_json, source_move_id, kind</td><td><span class="ms-chip ms-later">M3</span></td></tr>
+          <tr><td class="table-name">review_queue / drill_attempts</td><td class="cols">due_at, ease, streak, eval_prediction_cp</td><td><span class="ms-chip ms-later">M3</span></td></tr>
+          <tr><td class="table-name">dossiers / training_programs</td><td class="cols">error_model_json, week_plan_json</td><td><span class="ms-chip ms-later">M5</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="section" id="pipeline">
+    <div class="section-header">
+      <span class="section-marker">♗</span>
+      <h2 class="section-title">Game-Analysis Pipeline</h2>
+      <span class="section-sub">the Beta-milestone core loop</span>
+    </div>
+    <div class="pipeline">
+      <div class="pipeline-step">
+        <div class="pipeline-step-name">pgnIngest.ts</div>
+        <div class="pipeline-step-desc">Splits multi-game exports, parses with chess.js, extracts <code>%clk</code> telemetry, detects player color. Each game parsed in isolation — one malformed game never fails the batch.</div>
+      </div>
+      <div class="pipeline-step">
+        <div class="pipeline-step-name">enginePool.ts</div>
+        <div class="pipeline-step-desc">2-3 Stockfish child processes, least-busy dispatch, auto-restart on crash. Reuses the Stockfish binary already installed for the sibling app.</div>
+      </div>
+      <div class="pipeline-step">
+        <div class="pipeline-step-name">evalCache.ts</div>
+        <div class="pipeline-step-desc">DB-backed FEN→eval cache with an in-memory LRU in front. Opening positions repeat heavily across games — a second upload of the same PGN completes near-instantly.</div>
+      </div>
+      <div class="pipeline-step">
+        <div class="pipeline-step-name">evaluator.ts</div>
+        <div class="pipeline-step-desc">Evaluates every position in a game with bounded concurrency matched to the engine pool size.</div>
+      </div>
+      <div class="pipeline-step">
+        <div class="pipeline-step-name">classifier.ts</div>
+        <div class="pipeline-step-desc">Phase-scaled cp-loss thresholds (tighter in the endgame), win%-dampening at extreme evaluations, missed-forced-mate detection, and a checkmate special-case so the mating move itself always classifies as best.</div>
+      </div>
+      <div class="pipeline-step">
+        <div class="pipeline-step-name">analysisQueue.ts</div>
+        <div class="pipeline-step-desc">In-process job queue, progress persisted for restart-resume, live progress streamed to the client over SSE.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="milestones">
+    <div class="section-header">
+      <span class="section-marker">♔</span>
+      <h2 class="section-title">Milestones</h2>
+    </div>
+    <div class="milestones">
+      <div class="milestone-row built">
+        <div class="milestone-tag">M0</div>
+        <div>
+          <div class="milestone-title">Scaffold, auth, schema <span class="milestone-status">Built</span></div>
+          <div class="milestone-demo">Register, log in, empty dashboard, roles + tiers + GDPR export/delete wired to real tables.</div>
+        </div>
+      </div>
+      <div class="milestone-row built">
+        <div class="milestone-tag">M1</div>
+        <div>
+          <div class="milestone-title">Core loop — the Beta demo <span class="milestone-status">Built</span></div>
+          <div class="milestone-demo"><em>Upload a real Chess.com/Lichess PGN export, watch Stockfish analysis stream in over SSE, review the game move-by-move with per-move classifications, an eval bar, and engine-preferred alternatives.</em></div>
+        </div>
+      </div>
+      <div class="milestone-row">
+        <div class="milestone-tag">M2</div>
+        <div>
+          <div class="milestone-title">Player model</div>
+          <div class="milestone-demo">Skill inference, evidence receipts, BKT updates, snapshots. "You're L3, Blunder Wall — here are the 14 moves that prove it."</div>
+        </div>
+      </div>
+      <div class="milestone-row">
+        <div class="milestone-tag">M3</div>
+        <div>
+          <div class="milestone-title">Prescribe &amp; train</div>
+          <div class="milestone-demo">Prescription engine, book corpus, own-mistake drills, calibration trainer, daily spaced-repetition session.</div>
+        </div>
+      </div>
+      <div class="milestone-row">
+        <div class="milestone-tag">M4</div>
+        <div>
+          <div class="milestone-title">LLM layer</div>
+          <div class="milestone-demo">Provider abstraction (Ollama-first, local and free), claim guard, narrator, coach chat, debate panel. QA harness complete.</div>
+        </div>
+      </div>
+      <div class="milestone-row">
+        <div class="milestone-tag">M5</div>
+        <div>
+          <div class="milestone-title">Novel features</div>
+          <div class="milestone-demo">Shadow Twin arena, counterfactual replay, opponent dossier, tilt detection, plateau programs, coach multi-student views. Full investor-deck demo.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="verification">
+    <div class="section-header">
+      <span class="section-marker">✓</span>
+      <h2 class="section-title">Verified This Session</h2>
+    </div>
+    <div class="checklist">
+      <div class="check-item"><span class="mark">✓</span><span>Server boots, runs Drizzle migrations, seeds admin — Stockfish binary and Ollama/gemma4 both resolved from environment.</span></div>
+      <div class="check-item"><span class="mark">✓</span><span>Register → log in → session persists via bearer token, proxied correctly through the Vite dev server.</span></div>
+      <div class="check-item"><span class="mark">✓</span><span>Real PGN upload (Scholar's Mate trap, with <code>%clk</code> tags) parses, ingests, and queues for analysis — player color auto-detected from username.</span></div>
+      <div class="check-item"><span class="mark">✓</span><span>Stockfish analyzes every move; the known defensive blunder (4...Nf6??) is correctly flagged <strong>blunder</strong>, and the mating move Qxf7# is correctly flagged <strong>best</strong>.</span></div>
+      <div class="check-item"><span class="mark">✓</span><span>Re-uploading the identical PGN completes near-instantly — eval cache hit confirmed by timing.</span></div>
+      <div class="check-item"><span class="mark">✓</span><span>44 unit tests pass (classification thresholds, BKT, SM-2-lite, PGN ingestion incl. malformed-game isolation).</span></div>
+      <div class="check-item"><span class="mark">✓</span><span>8 ground-truth eval-harness tests pass against Stockfish directly (mate detection, material imbalance, balanced openings) plus one end-to-end pipeline test.</span></div>
+      <div class="check-item"><span class="mark">✓</span><span>Full typecheck clean across shared/server/client.</span></div>
+    </div>
+  </section>
+
+  <div class="doc-footer">Master Chess · Internal architecture document · companion to MASTERPLAN.md · July 2026</div>
+
+</main>
+
+</body>
+</html>

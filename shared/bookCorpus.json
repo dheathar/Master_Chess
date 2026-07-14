@@ -1,0 +1,856 @@
+[
+  {
+    "title": "Fundamental Chess Openings",
+    "author": "Paul van der Sterren",
+    "year": "2009",
+    "level": "1200–1800",
+    "themes": "All major opening systems, plans and ideas; ideal first reference",
+    "skills": [
+      "opening_principles",
+      "opening_repertoire"
+    ]
+  },
+  {
+    "title": "How to Open a Chess Game (GM Contributors)",
+    "author": "Various GMs",
+    "year": "1974",
+    "level": "1400–2000",
+    "themes": "Seven GMs each explain their favourite opening choice and philosophy",
+    "skills": [
+      "opening_principles",
+      "opening_repertoire"
+    ]
+  },
+  {
+    "title": "Pirc Alert!",
+    "author": "Lev Alburt & Alex Chernin",
+    "year": "2001",
+    "level": "1400–2200",
+    "themes": "Model for how a complete opening book should be structured; ideas-first",
+    "skills": [
+      "opening_principles",
+      "opening_repertoire"
+    ]
+  },
+  {
+    "title": "Mastering the French",
+    "author": "Neil McDonald",
+    "year": "2000",
+    "level": "1400–2000",
+    "themes": "Ideas, plans and typical middlegame structures in the French",
+    "skills": [
+      "opening_principles",
+      "opening_repertoire"
+    ]
+  },
+  {
+    "title": "Opening Encyclopaedia 2025 (ChessBase)",
+    "author": "Various",
+    "year": "2025",
+    "level": "All",
+    "themes": "1,524 theoretical databases; GM annotations; updated through early 2025",
+    "skills": [
+      "opening_preparation_novelties",
+      "opening_repertoire"
+    ]
+  },
+  {
+    "title": "Modern Chess Openings (MCO-15)",
+    "author": "Nick de Firmian",
+    "year": "2008",
+    "level": "1600+",
+    "themes": "Standard reference for opening lines across all major systems",
+    "skills": [
+      "opening_preparation_novelties",
+      "opening_repertoire"
+    ]
+  },
+  {
+    "title": "Nunn's Chess Openings",
+    "author": "Nunn / Burgess / Emms / Gallagher",
+    "year": "1999",
+    "level": "1800+",
+    "themes": "Encyclopaedic coverage with verbal summaries of key ideas per system",
+    "skills": [
+      "opening_preparation_novelties",
+      "opening_repertoire"
+    ]
+  },
+  {
+    "title": "My System",
+    "author": "Aaron Nimzowitsch",
+    "year": "1925",
+    "level": "1400–2400",
+    "themes": "Blockade, prophylaxis, outposts, overprotection – foundational strategy",
+    "skills": [
+      "strategic_planning"
+    ]
+  },
+  {
+    "title": "Chess Praxis",
+    "author": "Aaron Nimzowitsch",
+    "year": "1929",
+    "level": "1600–2400",
+    "themes": "Applied follow-up to My System with annotated games",
+    "skills": [
+      "strategic_planning"
+    ]
+  },
+  {
+    "title": "How to Reassess Your Chess (4th ed.)",
+    "author": "Jeremy Silman",
+    "year": "2010",
+    "level": "1200–1800",
+    "themes": "Imbalances framework: space, minor pieces, pawn structure, initiative",
+    "skills": [
+      "strategic_planning"
+    ]
+  },
+  {
+    "title": "Chess Structures: A Grandmaster Guide",
+    "author": "Mauricio Flores Rios",
+    "year": "2015",
+    "level": "1600–2200",
+    "themes": "Pawn-structure families; plans for both sides in every major structure",
+    "skills": [
+      "strategic_planning"
+    ]
+  },
+  {
+    "title": "Positional Decision Making in Chess",
+    "author": "Boris Gelfand",
+    "year": "2015",
+    "level": "1800–2400",
+    "themes": "Grandmaster thought process: space, transformation of advantages",
+    "skills": [
+      "strategic_planning"
+    ]
+  },
+  {
+    "title": "Soviet Middlegame Technique",
+    "author": "Peter Romanovsky",
+    "year": "1925/2012",
+    "level": "1600–2200",
+    "themes": "Piece coordination, attack vs defence, formulating plans",
+    "skills": [
+      "strategic_planning"
+    ]
+  },
+  {
+    "title": "Secrets of Modern Chess Strategy",
+    "author": "John Watson",
+    "year": "1998",
+    "level": "1800–2400",
+    "themes": "How positional play evolved beyond Nimzowitsch into the modern era",
+    "skills": [
+      "strategic_planning"
+    ]
+  },
+  {
+    "title": "400 Chess Strategy Puzzles",
+    "author": "Martyn Kravtsiv",
+    "year": "2024",
+    "level": "1600–2400",
+    "themes": "Pawns/structure, piece activity, mixed themes — 'talk to your pieces'",
+    "skills": [
+      "strategic_planning"
+    ]
+  },
+  {
+    "title": "Art of Combination",
+    "author": "Mikhail Blokh",
+    "year": "1994",
+    "level": "1400–2200",
+    "themes": "Thematically organised tactical motifs; 1,200+ exercises",
+    "skills": [
+      "tactical_pattern_recognition",
+      "tactical_consistency",
+      "pattern_recognition_speed",
+      "intuition_practical_judgment"
+    ]
+  },
+  {
+    "title": "Encyclopedia of Chess Combinations",
+    "author": "Chess Informant",
+    "year": "2019",
+    "level": "1800+",
+    "themes": "3,001 problems — most exhaustive tactical collection available",
+    "skills": [
+      "tactical_pattern_recognition",
+      "tactical_consistency",
+      "pattern_recognition_speed",
+      "intuition_practical_judgment"
+    ]
+  },
+  {
+    "title": "1000 Checkmate Combinations",
+    "author": "Victor Henkin",
+    "year": "1980",
+    "level": "1400+",
+    "themes": "Gold standard of checkmate books; fresh, vibrant, well-organised",
+    "skills": [
+      "tactical_pattern_recognition",
+      "tactical_consistency",
+      "pattern_recognition_speed",
+      "intuition_practical_judgment"
+    ]
+  },
+  {
+    "title": "Learn Chess Tactics",
+    "author": "John Nunn",
+    "year": "2004",
+    "level": "800–1600",
+    "themes": "Thematically organised introduction to all major tactical motifs",
+    "skills": [
+      "tactical_pattern_recognition",
+      "tactical_consistency",
+      "pattern_recognition_speed",
+      "intuition_practical_judgment"
+    ]
+  },
+  {
+    "title": "Improve Your Chess Pattern Recognition",
+    "author": "Arthur van de Oudeweetering",
+    "year": "2014",
+    "level": "1400–2000",
+    "themes": "Key moves and motifs in the middlegame; pattern library building",
+    "skills": [
+      "tactical_pattern_recognition",
+      "tactical_consistency",
+      "pattern_recognition_speed",
+      "intuition_practical_judgment"
+    ]
+  },
+  {
+    "title": "Think Like a Grandmaster",
+    "author": "Alexander Kotov",
+    "year": "1971",
+    "level": "1600–2400",
+    "themes": "Tree of analysis; systematic calculation; candidate move selection",
+    "skills": [
+      "calculation_precision",
+      "thought_process_candidate_moves"
+    ]
+  },
+  {
+    "title": "Grandmaster Preparation: Calculation",
+    "author": "Jacob Aagaard",
+    "year": "2012",
+    "level": "2000+",
+    "themes": "Exercises simulating real-game calculation under pressure",
+    "skills": [
+      "calculation_precision",
+      "thought_process_candidate_moves"
+    ]
+  },
+  {
+    "title": "Grandmaster Preparation: Attack & Defence",
+    "author": "Jacob Aagaard",
+    "year": "2013",
+    "level": "2000+",
+    "themes": "When to attack, when to defend; calculation in critical positions",
+    "skills": [
+      "calculation_precision",
+      "thought_process_candidate_moves"
+    ]
+  },
+  {
+    "title": "Woodpecker Method 2: Positional Play",
+    "author": "Axel Smith",
+    "year": "2024",
+    "level": "1600–2400",
+    "themes": "Spaced-repetition of positional puzzles; builds pattern automaticity",
+    "skills": [
+      "calculation_precision",
+      "thought_process_candidate_moves"
+    ]
+  },
+  {
+    "title": "Understanding Chess Middlegames",
+    "author": "John Nunn",
+    "year": "2011",
+    "level": "1400–2000",
+    "themes": "100 middlegame concepts with modern examples; concise and precise",
+    "skills": [
+      "positional_play"
+    ]
+  },
+  {
+    "title": "Improve Your Positional Chess",
+    "author": "Carsten Hansen",
+    "year": "2004",
+    "level": "1400–2000",
+    "themes": "Pawn structure, piece coordination, converting slight advantages",
+    "skills": [
+      "positional_play"
+    ]
+  },
+  {
+    "title": "Chess Strategy for Club Players",
+    "author": "Herman Grooten",
+    "year": "2009",
+    "level": "1200–1800",
+    "themes": "All key strategic themes with practical club-player examples",
+    "skills": [
+      "positional_play"
+    ]
+  },
+  {
+    "title": "The Woodpecker Method (vol 1 – Tactics)",
+    "author": "Axel Smith & Hans Tikkanen",
+    "year": "2018",
+    "level": "1400–2200",
+    "themes": "Spaced repetition for tactical pattern automaticity",
+    "skills": [
+      "positional_play"
+    ]
+  },
+  {
+    "title": "Fundamental Chess Strategy in 100 Games",
+    "author": "Boroljub Zlatanovic",
+    "year": "2019",
+    "level": "1600–2200",
+    "themes": "Bishop pair, open files, pawn structures, coordination, initiative, blockades",
+    "skills": [
+      "piece_activity_coordination"
+    ]
+  },
+  {
+    "title": "The Art of the Rook",
+    "author": "Cyrus Lakdawala",
+    "year": "2015",
+    "level": "1600–2200",
+    "themes": "Rook activation, open files, 7th rank, rook lifts in middlegame context",
+    "skills": [
+      "piece_activity_coordination"
+    ]
+  },
+  {
+    "title": "Chess Middlegame Planning",
+    "author": "Peter Romanovsky",
+    "year": "1990",
+    "level": "1400–2000",
+    "themes": "Creating and exploiting piece activity through structural plans",
+    "skills": [
+      "piece_activity_coordination"
+    ]
+  },
+  {
+    "title": "The Art of Attack in Chess",
+    "author": "Vladimir Vuković",
+    "year": "1965",
+    "level": "1000–1800",
+    "themes": "Mating nets, standard sacrifices, attacking the king — canonical text",
+    "skills": [
+      "attack_initiative"
+    ]
+  },
+  {
+    "title": "Fire on Board",
+    "author": "Alexei Shirov",
+    "year": "1995",
+    "level": "1600–2400",
+    "themes": "Dynamic sacrifices, tactical creativity, seizing the initiative",
+    "skills": [
+      "attack_initiative"
+    ]
+  },
+  {
+    "title": "The Life and Games of Mikhail Tal",
+    "author": "Mikhail Tal",
+    "year": "1976",
+    "level": "1400–2400",
+    "themes": "Dynamism, risk management, sacrificial attacking play",
+    "skills": [
+      "attack_initiative"
+    ]
+  },
+  {
+    "title": "Attacking Strategies for Club Players",
+    "author": "Michael Prusikin",
+    "year": "2014",
+    "level": "1400–2000",
+    "themes": "Practical conditions for attack; space, king safety, piece accumulation",
+    "skills": [
+      "attack_initiative"
+    ]
+  },
+  {
+    "title": "Lessons on Uncompromising Play",
+    "author": "David Navara",
+    "year": "2024",
+    "level": "2200+",
+    "themes": "Winning on demand; seizing initiative in equal and better positions",
+    "skills": [
+      "attack_initiative"
+    ]
+  },
+  {
+    "title": "The Art of Defence in Chess",
+    "author": "Andrew Soltis",
+    "year": "1997",
+    "level": "1400–2200",
+    "themes": "Tenacity, saving worse positions, creating counterplay",
+    "skills": [
+      "defence_counterplay",
+      "time_management",
+      "psychological_resilience"
+    ]
+  },
+  {
+    "title": "Grandmaster Preparation: Endgame Play",
+    "author": "Jacob Aagaard",
+    "year": "2014",
+    "level": "2000+",
+    "themes": "Converting advantages; avoiding risk in simplified positions",
+    "skills": [
+      "defence_counterplay",
+      "time_management",
+      "psychological_resilience"
+    ]
+  },
+  {
+    "title": "Seven Deadly Chess Sins",
+    "author": "Jonathan Rowson",
+    "year": "2000",
+    "level": "1600–2400",
+    "themes": "Complacency, cowardice, and the psychological roots of defensive failures",
+    "skills": [
+      "defence_counterplay",
+      "time_management",
+      "psychological_resilience"
+    ]
+  },
+  {
+    "title": "Prophylaxis and Chess",
+    "author": "Tigran Petrosian (ed.)",
+    "year": "2017",
+    "level": "1800–2400",
+    "themes": "Preventive play, long-term manoevring, restraint as a weapon",
+    "skills": [
+      "patience_long_term_thinking",
+      "prophylaxis"
+    ]
+  },
+  {
+    "title": "Strategic Chess Exercises",
+    "author": "Emmanuel Bricard",
+    "year": "2017",
+    "level": "1600–2200",
+    "themes": "Long-term plans, prophylaxis, positional squeeze",
+    "skills": [
+      "patience_long_term_thinking",
+      "prophylaxis"
+    ]
+  },
+  {
+    "title": "Zurich 1953",
+    "author": "David Bronstein",
+    "year": "1956",
+    "level": "1600–2400",
+    "themes": "Operational strategy and patience in classic tournament games",
+    "skills": [
+      "patience_long_term_thinking",
+      "prophylaxis"
+    ]
+  },
+  {
+    "title": "100 Endgames You Must Know",
+    "author": "Jesús de la Villa",
+    "year": "2008",
+    "level": "1000–1600",
+    "themes": "100 most common endgame positions with clear rules; practical gold",
+    "skills": [
+      "endgame_principles"
+    ]
+  },
+  {
+    "title": "Dvoretsky's Endgame Manual (6th ed.)",
+    "author": "Mark Dvoretsky",
+    "year": "2025",
+    "level": "1800+",
+    "themes": "Reference standard for all endgame types; exhaustive and authoritative",
+    "skills": [
+      "endgame_principles"
+    ]
+  },
+  {
+    "title": "Fundamental Chess Endings",
+    "author": "Karsten Müller & Frank Lamprecht",
+    "year": "2001",
+    "level": "1600+",
+    "themes": "Encyclopaedic; go-to resource for specific endgame positions",
+    "skills": [
+      "endgame_principles"
+    ]
+  },
+  {
+    "title": "How to Play Chess Endgames",
+    "author": "Karsten Müller & Wolfgang Pajeken",
+    "year": "2008",
+    "level": "1600+",
+    "themes": "Modern take on Shereshevsky; strategic endgame principles applied",
+    "skills": [
+      "endgame_principles"
+    ]
+  },
+  {
+    "title": "Silman's Complete Endgame Course",
+    "author": "Jeremy Silman",
+    "year": "2007",
+    "level": "800–2000",
+    "themes": "Organised by rating level; each chapter relevant to its audience",
+    "skills": [
+      "endgame_principles"
+    ]
+  },
+  {
+    "title": "Endgame Strategy (Revised ed.)",
+    "author": "Mikhail Shereshevsky",
+    "year": "2022",
+    "level": "1400+",
+    "themes": "King activity, do not hurry, two weaknesses — classic strategic guide",
+    "skills": [
+      "endgame_principles"
+    ]
+  },
+  {
+    "title": "Secrets of Pawn Endings",
+    "author": "Karsten Müller & Frank Lamprecht",
+    "year": "2007",
+    "level": "1400+",
+    "themes": "Opposition, zugzwang, breakthrough; deepens middlegame pawn thinking",
+    "skills": [
+      "pawn_endings"
+    ]
+  },
+  {
+    "title": "Pawn Structure Chess",
+    "author": "Andrew Soltis",
+    "year": "1976",
+    "level": "1400–2000",
+    "themes": "How pawn structures shape endgame plans; links opening to ending",
+    "skills": [
+      "pawn_endings"
+    ]
+  },
+  {
+    "title": "Rook Endings",
+    "author": "Grigory Levenfish & Vasily Smyslov",
+    "year": "1971",
+    "level": "1600+",
+    "themes": "Definitive rook endgame manual; Philidor, Lucena, cut-off positions",
+    "skills": [
+      "rook_endings"
+    ]
+  },
+  {
+    "title": "Practical Rook Endings",
+    "author": "Victor Korchnoi",
+    "year": "2002",
+    "level": "1600–2400",
+    "themes": "Practical tournament rook endings annotated by one of history's best",
+    "skills": [
+      "rook_endings"
+    ]
+  },
+  {
+    "title": "Knight vs Bishop Endgames",
+    "author": "Karsten Müller (ChessBase DVD)",
+    "year": "2010",
+    "level": "1600+",
+    "themes": "Good vs bad bishop; knight outposts; minor piece conversion technique",
+    "skills": [
+      "knight_endings"
+    ]
+  },
+  {
+    "title": "Endgame Virtuoso Smyslov",
+    "author": "Vasily Smyslov",
+    "year": "1997",
+    "level": "1800+",
+    "themes": "Minor piece endings annotated by one of the greatest endgame players",
+    "skills": [
+      "knight_endings"
+    ]
+  },
+  {
+    "title": "Bishop Endings & Knight vs Bishop",
+    "author": "Karsten Müller",
+    "year": "2013",
+    "level": "1600+",
+    "themes": "Same-colour, opposite-colour bishops; bishop vs knight; mixed technique",
+    "skills": [
+      "bishop_mixed_endings",
+      "game_transition"
+    ]
+  },
+  {
+    "title": "Capablanca's Best Chess Endings",
+    "author": "Irving Chernev",
+    "year": "1978",
+    "level": "1000–1800",
+    "themes": "60 complete games chosen for endgame play; transition from middlegame",
+    "skills": [
+      "bishop_mixed_endings",
+      "game_transition"
+    ]
+  },
+  {
+    "title": "Secrets of Chess Endgame Strategy",
+    "author": "Lars Bo Hansen",
+    "year": "2006",
+    "level": "1600–2200",
+    "themes": "Strategic endgames — from end of middlegame to technical conversion",
+    "skills": [
+      "bishop_mixed_endings",
+      "game_transition"
+    ]
+  },
+  {
+    "title": "Practical Endgame Play — Beyond the Basics",
+    "author": "Glenn Flear",
+    "year": "2007",
+    "level": "1600+",
+    "themes": "Endgames that really matter in practice; beyond textbook positions",
+    "skills": [
+      "endgame_precision_conversion",
+      "converting_advantages",
+      "game_transition"
+    ]
+  },
+  {
+    "title": "Endgame Strategy",
+    "author": "Mikhail Shereshevsky",
+    "year": "1985",
+    "level": "1400+",
+    "themes": "Converting advantages, king centralisation, do-not-hurry principle",
+    "skills": [
+      "endgame_precision_conversion",
+      "converting_advantages",
+      "game_transition"
+    ]
+  },
+  {
+    "title": "Zurich 1953 (endgame transitions)",
+    "author": "David Bronstein",
+    "year": "1956",
+    "level": "1600+",
+    "themes": "See how grandmasters transition into endgames and apply technique",
+    "skills": [
+      "endgame_precision_conversion",
+      "converting_advantages",
+      "game_transition"
+    ]
+  },
+  {
+    "title": "Grandmaster Preparation: Decision Making",
+    "author": "Jacob Aagaard",
+    "year": "2012",
+    "level": "2000+",
+    "themes": "Advanced exercises forcing accurate decision-making in ambiguous positions",
+    "skills": [
+      "thought_process_candidate_moves"
+    ]
+  },
+  {
+    "title": "How Life Imitates Chess",
+    "author": "Garry Kasparov",
+    "year": "2007",
+    "level": "All",
+    "themes": "Decision-making, preparation and strategy from the world's greatest player",
+    "skills": [
+      "thought_process_candidate_moves"
+    ]
+  },
+  {
+    "title": "The Psychology of Chess",
+    "author": "Fernand Gobet",
+    "year": "2019",
+    "level": "All",
+    "themes": "Cognitive science: intuition, pattern recognition, expertise development",
+    "skills": [
+      "thought_process_candidate_moves"
+    ]
+  },
+  {
+    "title": "Move First, Think Later",
+    "author": "Willy Hendriks",
+    "year": "2012",
+    "level": "1600–2400",
+    "themes": "Challenges orthodox instruction through cognitive science and realism",
+    "skills": [
+      "thought_process_candidate_moves"
+    ]
+  },
+  {
+    "title": "Practical Chess Psychology",
+    "author": "Amatzia Avni",
+    "year": "2004",
+    "level": "1400–2200",
+    "themes": "Handling pressure, psychological warfare, staying focused",
+    "skills": [
+      "psychological_warfare"
+    ]
+  },
+  {
+    "title": "Winning with Chess Psychology",
+    "author": "Pal Benko & Burt Hochberg",
+    "year": "1991",
+    "level": "1200–2200",
+    "themes": "Playing vs stronger/weaker opponents; psychological weapons and traps",
+    "skills": [
+      "psychological_warfare"
+    ]
+  },
+  {
+    "title": "Psychology in Chess",
+    "author": "Nikolai Krogius",
+    "year": "1976",
+    "level": "1600–2400",
+    "themes": "Soviet scientific approach; cognitive causes of chess mistakes",
+    "skills": [
+      "psychological_warfare"
+    ]
+  },
+  {
+    "title": "Chess for Zebras",
+    "author": "Jonathan Rowson",
+    "year": "2005",
+    "level": "1600–2400",
+    "themes": "Why improvement stalls; self-awareness, unconscious habits, psychological growth",
+    "skills": [
+      "psychological_warfare"
+    ]
+  },
+  {
+    "title": "Chess for Tigers",
+    "author": "Simon Webb",
+    "year": "1978",
+    "level": "1200–2400",
+    "themes": "Strategic psychology: playing vs weaker/stronger opponents; the ambush principle",
+    "skills": [
+      "psychological_warfare"
+    ]
+  },
+  {
+    "title": "Mental Toughness in Chess",
+    "author": "Werner Schweitzer",
+    "year": "2020",
+    "level": "All",
+    "themes": "Practical tips for mindset, nerves, time pressure and tournament preparation",
+    "skills": [
+      "time_management",
+      "psychological_resilience"
+    ]
+  },
+  {
+    "title": "The Art of Learning",
+    "author": "Josh Waitzkin",
+    "year": "2007",
+    "level": "All",
+    "themes": "Building mental performance, resilience and zone-state under pressure",
+    "skills": [
+      "time_management",
+      "psychological_resilience"
+    ]
+  },
+  {
+    "title": "Champion Psychology",
+    "author": "Igor Smirnov",
+    "year": "2015",
+    "level": "All",
+    "themes": "Overcoming nerves, last-round fear, anger after losses; intuition use",
+    "skills": [
+      "time_management",
+      "psychological_resilience"
+    ]
+  },
+  {
+    "title": "1001 Deadly Checkmates",
+    "author": "John Nunn",
+    "year": "2011",
+    "level": "800–1600",
+    "themes": "Recent examples; builds automatic recognition of mating patterns",
+    "skills": [
+      "pattern_recognition_speed",
+      "intuition_practical_judgment"
+    ]
+  },
+  {
+    "title": "Game Changer: AlphaZero",
+    "author": "Matthew Sadler & Natasha Regan",
+    "year": "2019",
+    "level": "1600–2400",
+    "themes": "AI pattern thinking; positional sacrifices; initiative over material",
+    "skills": [
+      "pattern_recognition_speed",
+      "intuition_practical_judgment"
+    ]
+  },
+  {
+    "title": "Secrets of Pawn Endings",
+    "author": "Müller & Lamprecht",
+    "year": "2007",
+    "level": "1400+",
+    "themes": "Improves middlegame pawn decisions through understanding of endings",
+    "skills": [
+      "game_transition"
+    ]
+  },
+  {
+    "title": "My 60 Memorable Games",
+    "author": "Bobby Fischer",
+    "year": "1969",
+    "level": "1400–2400",
+    "themes": "Calculation, initiative, pragmatic opening decisions — the definitive classic",
+    "skills": [
+      "positional_play",
+      "game_transition"
+    ]
+  },
+  {
+    "title": "Logical Chess: Move by Move",
+    "author": "Irving Chernev",
+    "year": "1957",
+    "level": "800–1400",
+    "themes": "33 master games explained move by move; general principles throughout",
+    "skills": [
+      "positional_play",
+      "game_transition"
+    ]
+  },
+  {
+    "title": "Understanding Chess Move by Move",
+    "author": "John Nunn",
+    "year": "2001",
+    "level": "1400–2000",
+    "themes": "Complex, dynamic modern games explained in depth",
+    "skills": [
+      "positional_play",
+      "game_transition"
+    ]
+  },
+  {
+    "title": "My Great Predecessors (5 vols.)",
+    "author": "Garry Kasparov",
+    "year": "2003",
+    "level": "1800–2400",
+    "themes": "Historical and analytical depth; evolution of strategic archetypes",
+    "skills": [
+      "positional_play",
+      "game_transition"
+    ]
+  },
+  {
+    "title": "Zurich International Chess Tournament 1953",
+    "author": "David Bronstein",
+    "year": "1956",
+    "level": "1600–2400",
+    "themes": "Strategy, tactics, tournament psychology — one of the greatest ever written",
+    "skills": [
+      "positional_play",
+      "game_transition"
+    ]
+  }
+]

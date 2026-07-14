@@ -1,0 +1,974 @@
+\documentclass[11pt]{article}
+
+% ============================================================================
+%  Master Chess — Field Manual
+%  Typeset with Tectonic (XeTeX).  Build:  tectonic master-chess-manual.tex
+% ============================================================================
+
+\usepackage{fontspec}
+\usepackage{amsmath}
+\usepackage[a4paper,margin=2.4cm,headsep=18pt,footskip=26pt]{geometry}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{tcolorbox}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{colortbl}
+\usepackage{tabularx}
+\usepackage{xltabular}
+\usepackage{graphicx}
+\usepackage{pifont}
+\usepackage[hidelinks]{hyperref}
+\usepackage{needspace}
+\tcbuselibrary{skins,breakable}
+\usetikzlibrary{calc}
+
+% ---- Palette: a wooden chess set + score classifications ------------------
+\definecolor{walnut}{HTML}{3A2A1E}     % dark board wood — headings, rules
+\definecolor{walnutmid}{HTML}{5C4632}  % mid wood
+\definecolor{parchment}{HTML}{F4ECD8}  % board-light square / page tint
+\definecolor{parchdeep}{HTML}{E8DCC0}  % deeper parchment for rules
+\definecolor{forest}{HTML}{2E5D45}     % primary accent (felt green)
+\definecolor{forestlt}{HTML}{4A7C4E}   % "best" green
+\definecolor{blunder}{HTML}{B23A2E}    % blunder red
+\definecolor{gold}{HTML}{C9A227}       % highlight gold
+\definecolor{ink}{HTML}{241B14}        % body text
+\definecolor{slate}{HTML}{6B5D4F}      % muted captions
+\definecolor{rulehair}{HTML}{C9B89A}   % hairline
+
+% ---- Fonts ----------------------------------------------------------------
+\setmainfont{Charter}[
+  Numbers = OldStyle,
+  Ligatures = TeX ]
+\setsansfont{DejaVu Sans}[
+  Scale = 0.92,
+  LetterSpace = 0.4 ]
+\setmonofont{DejaVu Sans Mono}[Scale = 0.82]
+\newfontfamily\tabnum{Charter}[Numbers = Lining]
+\newfontfamily\chessfont{DejaVu Sans}
+\newcommand{\king}{{\chessfont\symbol{"2654}}}   % ♔
+\newcommand{\yes}{{\color{forestlt}\ding{52}}}    % ✓ supports
+\newcommand{\no}{{\color{blunder}\ding{56}}}      % ✗ counts against
+
+\color{ink}
+\linespread{1.10}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt}
+
+% ---- Headings -------------------------------------------------------------
+\titleformat{\section}
+  {\needspace{4\baselineskip}\sffamily\bfseries\Large\color{walnut}}
+  {\colorbox{walnut}{\textcolor{parchment}{\;\thesection\;}}}{0.7em}{}
+  [\vspace{-6pt}{\color{gold}\rule{\linewidth}{1.4pt}}]
+\titleformat{\subsection}
+  {\needspace{3\baselineskip}\sffamily\bfseries\large\color{forest}}
+  {\thesubsection}{0.6em}{}
+\titleformat{\subsubsection}
+  {\needspace{2\baselineskip}\sffamily\bfseries\normalsize\color{walnutmid}}
+  {}{0em}{}
+\titlespacing*{\section}{0pt}{18pt}{8pt}
+\titlespacing*{\subsection}{0pt}{12pt}{4pt}
+\titlespacing*{\subsubsection}{0pt}{8pt}{2pt}
+
+% ---- Header / footer ------------------------------------------------------
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+\fancyhead[L]{\sffamily\footnotesize\color{slate}\MakeUppercase{Master Chess}}
+\fancyhead[R]{\sffamily\footnotesize\color{slate}\leftmark}
+\fancyfoot[L]{\sffamily\footnotesize\color{slate}Field Manual}
+\fancyfoot[R]{\sffamily\footnotesize\color{slate}\thepage}
+\fancyfoot[C]{\footnotesize\color{gold}\ding{169}}
+\renewcommand{\sectionmark}[1]{\markboth{\thesection\quad #1}{}}
+
+% ---- Table helpers --------------------------------------------------------
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+\renewcommand{\arraystretch}{1.28}
+\arrayrulecolor{rulehair}
+
+% ---- Boxes ----------------------------------------------------------------
+% Example-of-play box (tabletop-manual tradition)
+\newtcolorbox{playbox}[1][Example of Play]{
+  breakable, enhanced,
+  colback=parchment, colframe=walnut,
+  boxrule=0pt, leftrule=4pt, arc=2pt, outer arc=2pt,
+  left=14pt, right=14pt, top=10pt, bottom=12pt,
+  boxsep=2pt,
+  overlay unbroken and first={
+    \node[anchor=north west, font=\sffamily\bfseries\footnotesize,
+          text=parchment, fill=walnut, inner xsep=8pt, inner ysep=3pt]
+      at ([xshift=10pt,yshift=10pt]frame.north west) {\MakeUppercase{#1}};},
+  before skip=12pt, after skip=12pt }
+
+% Rule / definition box
+\newtcolorbox{rulebox}[1]{
+  breakable, enhanced,
+  colback=parchdeep, colframe=forest,
+  boxrule=0pt, leftrule=4pt, arc=1pt, outer arc=1pt,
+  left=12pt, right=12pt, top=8pt, bottom=10pt,
+  fonttitle=\sffamily\bfseries\small,
+  coltitle=parchment, title={\ding{110}\enspace #1},
+  before skip=10pt, after skip=10pt }
+
+% Note / caution box
+\newtcolorbox{notebox}[1][Note]{
+  breakable, enhanced,
+  colback=white, colframe=gold,
+  boxrule=0pt, leftrule=4pt, arc=1pt,
+  left=12pt, right=12pt, top=7pt, bottom=8pt,
+  fonttitle=\sffamily\bfseries\footnotesize,
+  coltitle=walnutmid, colbacktitle=white,
+  attach title to upper={\par\vskip4pt},
+  title={\ding{72}\enspace\MakeUppercase{#1}},
+  before skip=10pt, after skip=10pt }
+
+% Classification chip
+\newcommand{\chip}[2]{\,\colorbox{#1}{\textcolor{white}{\sffamily\bfseries\footnotesize\,#2\,}}\,}
+\newcommand{\best}{\chip{forestlt}{Best}}
+\newcommand{\good}{\chip{forest}{Good}}
+\newcommand{\inacc}{\chip{gold}{Inaccuracy}}
+\newcommand{\mistake}{\chip{walnutmid}{Mistake}}
+\newcommand{\blun}{\chip{blunder}{Blunder}}
+
+\newcommand{\fen}[1]{{\ttfamily\small #1}}
+\newcommand{\code}[1]{{\ttfamily #1}}
+\newcommand{\skl}[1]{{\sffamily\small\color{forest}#1}}
+
+\hypersetup{pdftitle={Master Chess — Field Manual},
+            pdfauthor={Master Chess},
+            pdfsubject={Adaptive educational chess tutor — user \& mechanics manual}}
+
+% ============================================================================
+\begin{document}
+
+% ---- Cover (full-bleed via current-page overlay) --------------------------
+\begin{titlepage}
+\thispagestyle{empty}
+\begin{tikzpicture}[remember picture, overlay]
+  % Full-bleed walnut background
+  \fill[walnut]
+    (current page.south west) rectangle (current page.north east);
+  % Gold inner frame
+  \draw[gold, line width=1.2pt]
+    ($(current page.south west)+(1.7,1.7)$) rectangle
+    ($(current page.north east)+(-1.7,-1.7)$);
+  % Large faint king watermark
+  \node[opacity=0.09, text=parchment, scale=28]
+    at ($(current page.center)+(0,-1.0)$) {\king};
+  % Eyebrow
+  \node[anchor=west, text=gold, font=\sffamily\bfseries, scale=1.05]
+    at ($(current page.west)+(2.6,5.4)$) {\MakeUppercase{Field Manual}};
+  % Title
+  \node[anchor=west, text=parchment, font=\sffamily\bfseries, scale=3.6]
+    at ($(current page.west)+(2.5,3.7)$) {Master Chess};
+  % Rule
+  \draw[gold, line width=1pt]
+    ($(current page.west)+(2.6,2.5)$) -- ($(current page.west)+(10.2,2.5)$);
+  % Tagline
+  \node[anchor=west, text=parchment, font=\itshape, scale=1.4]
+    at ($(current page.west)+(2.6,1.6)$)
+    {The coach that reads your games, not the internet's.};
+  % Diagnose / Explain / Prescribe
+  \node[anchor=west, text=gold, font=\sffamily\bfseries, scale=1.15]
+    at ($(current page.west)+(2.6,-2.0)$)
+    {DIAGNOSE \quad\textcolor{parchment}{\ding{117}}\quad
+      EXPLAIN \quad\textcolor{parchment}{\ding{117}}\quad PRESCRIBE};
+  % Footer block
+  \node[anchor=west, text=parchment, font=\sffamily, scale=1.0]
+    at ($(current page.south west)+(2.6,4.2)$)
+    {An adaptive educational chess tutor};
+  \node[anchor=west, text=slate, font=\sffamily, scale=0.9]
+    at ($(current page.south west)+(2.6,3.4)$)
+    {Player \& Mechanics Manual \textbullet\ Version 1.0};
+\end{tikzpicture}
+\end{titlepage}
+
+% ---- How to read this book ------------------------------------------------
+\thispagestyle{empty}
+\vspace*{1.5cm}
+{\sffamily\bfseries\LARGE\color{walnut} How to read this manual}\\[2pt]
+{\color{gold}\rule{\linewidth}{1.4pt}}
+
+\vspace{6pt}
+This manual is written the way a good board-game rulebook is written: the rules
+first, then a fully worked \emph{game of play} that walks one real game from
+upload to a finished training plan, so you can see every mechanism act on real
+moves. Wherever you see a tinted box, it is doing one of three jobs.
+
+\begin{playbox}[Example of Play — how these boxes work]
+Boxes like this one follow a single running example — the analysis of a real
+historical game — so that every abstract rule is immediately grounded in
+something concrete. Read them in order and you will have watched the whole
+system operate end to end.
+\end{playbox}
+
+\begin{rulebox}{Rule box — the exact mechanic}
+Boxes like this state a precise rule: a threshold, a formula, a piece of
+scheduling logic. These are the authoritative numbers, taken directly from the
+system's source of record.
+\end{rulebox}
+
+\begin{notebox}[Note]
+Boxes like this flag something easy to get wrong, a limitation, or a
+cross-reference worth keeping in mind.
+\end{notebox}
+
+\vspace{4pt}
+\begin{center}
+\begin{tcolorbox}[enhanced, width=0.92\linewidth, colback=parchment,
+  colframe=rulehair, boxrule=0.6pt, arc=2pt, left=14pt,right=14pt,top=8pt,bottom=8pt]
+{\sffamily\footnotesize\color{walnutmid}\MakeUppercase{The one idea to keep}}\\[2pt]
+Master Chess is not an engine with a chat window bolted on. It runs a
+\textbf{closed learning loop} — \textsc{diagnose} what you can and cannot do,
+\textsc{explain} it against engine truth, \textsc{prescribe} exactly what to
+study and drill — and \textbf{every score it shows you has a receipt}: the exact
+moves that produced it. No black box.
+\end{tcolorbox}
+\end{center}
+
+\newpage
+\tableofcontents
+\newpage
+
+% ===========================================================================
+\section{What Master Chess Is}
+% ===========================================================================
+
+Master Chess is an adaptive educational chess tutor. You upload your own games;
+it analyses every move with the Stockfish engine, and from that
+engine-grounded analysis it builds a persistent, \emph{explainable} model of
+your ability across a taxonomy of \textbf{27 skills}. It then diagnoses your
+playing \textbf{level} and your current \textbf{plateau}, writes you a
+personalised \textbf{training plan} with matched reading, and turns the very
+mistakes you made into spaced-repetition \textbf{drills}.
+
+The product's thesis is that expert chess knowledge should be encoded into a
+structured substrate, and instruction rendered dynamically for the individual
+learner from engine truth --- never from an engine's chat-layer guesswork.
+
+\subsection{The two learning loops (and why the AI is neither)}
+
+The system has exactly two places where ``learning'' happens, and a language
+model is not one of them:
+
+\begin{enumerate}[leftmargin=1.4em, itemsep=2pt]
+  \item \textbf{The Player Model} --- a structured representation of you across
+  27 skills, updated by Bayesian Knowledge Tracing from engine-verified
+  evidence in every game and drill.
+  \item \textbf{The Chess Knowledge Layer} --- engine ground truth, an
+  opening / master-game library, and a book corpus mapped to the skill
+  taxonomy.
+\end{enumerate}
+
+An \textbf{AI reasoning layer} sits on top to write prose explanations, but it
+is always subordinate to engine truth: a runtime \emph{claim guard} rejects any
+generated sentence that contradicts a verified move or evaluation. If the model
+cannot say something true, the app falls back to a deterministic, engine-only
+readout rather than let an unverified sentence reach you.
+
+\begin{rulebox}{What grounds every claim}
+The engine (Stockfish) and the classified move record are the source of truth.
+The player model is derived from them by fixed, inspectable rules. The language
+model may only \emph{phrase} facts it is handed; it may never introduce a move,
+number, or verdict of its own. Any sentence that fails verification is
+discarded.
+\end{rulebox}
+
+\subsection{How it runs}
+
+\begin{center}
+\begin{tabularx}{\linewidth}{@{}l Y@{}}
+\toprule
+\textbf{Layer} & \textbf{Technology} \\
+\midrule
+Client & React single-page app served by Vite (development port \code{5173}) \\
+Server & Express API on \code{tsx} (default port \code{8030}) \\
+Storage & SQLite via Drizzle ORM (\code{better-sqlite3}, WAL mode) \\
+Engine & Stockfish over UCI, pooled; default search depth \code{16}, multi-PV \code{4} \\
+Reasoning & Provider-abstracted LLM (local Ollama by default; hosted models by tier) \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+To run it locally: \code{npm run dev} starts client and server together; the
+server first applies database migrations, seeds the master-game library,
+resumes any interrupted analyses, and purges expired sessions. A health probe
+lives at \code{GET /api/health}.
+
+\begin{notebox}[Scope note]
+This manual documents the \textbf{Master Chess} standalone app (the
+\code{ai\_chess} project). A sibling project in the same workspace is a separate
+classroom product with teacher/student dashboards; those screens are \emph{not}
+part of Master Chess and are not described here.
+\end{notebox}
+
+% ===========================================================================
+\section{The Vocabulary: Skills, Levels, Plateaus}
+% ===========================================================================
+
+Everything the app says about you is expressed in three linked vocabularies.
+Learn these and the rest of the manual reads easily.
+
+\subsection{The 27 skills, in 4 categories}
+
+Each skill carries a mastery score from 0--100, a trend arrow, and --- once
+there is evidence --- a list of the exact moves that produced the score. Three
+skills marked \textit{partial} are only partially diagnosable from game data
+alone.
+
+\begin{center}
+\tabnum
+\begin{xltabular}{\linewidth}{@{}p{1.4em} Y l@{}}
+\toprule
+\# & \textbf{Skill} & \textbf{Diagnosable} \\
+\midrule
+\endhead
+\multicolumn{3}{@{}l}{\textbf{\color{forest}OPENING}}\\
+1 & Opening principles & yes \\
+2 & Opening repertoire & yes \\
+3 & Opening preparation \& novelties & partial \\
+\addlinespace
+\multicolumn{3}{@{}l}{\textbf{\color{forest}MIDDLEGAME}}\\
+4 & Strategic planning & yes \\
+5 & Positional play & yes \\
+6 & Patience \& long-term thinking & yes \\
+7 & Prophylaxis & yes \\
+8 & Tactical pattern recognition & yes \\
+9 & Tactical consistency (blunder prevention) & yes \\
+10 & Calculation precision & yes \\
+11 & Attack \& initiative & yes \\
+12 & Piece activity \& coordination & yes \\
+13 & Defence \& counterplay & yes \\
+14 & Converting advantages & yes \\
+\addlinespace
+\multicolumn{3}{@{}l}{\textbf{\color{forest}ENDGAME}}\\
+15 & Endgame principles & yes \\
+16 & Game transition (middlegame to endgame) & yes \\
+17 & Endgame precision \& conversion & yes \\
+18 & Pawn endings & yes \\
+19 & Rook endings & yes \\
+20 & Knight endings & yes \\
+21 & Bishop \& mixed-piece endings & yes \\
+\addlinespace
+\multicolumn{3}{@{}l}{\textbf{\color{forest}PSYCHOLOGY \& MENTAL}}\\
+22 & Thought process \& candidate moves & partial \\
+23 & Pattern recognition speed & yes \\
+24 & Intuition \& practical judgment & partial \\
+25 & Time management & yes \\
+26 & Psychological resilience & yes \\
+27 & Psychological warfare & partial \\
+\bottomrule
+\end{xltabular}
+\end{center}
+
+\begin{notebox}[Known cosmetic discrepancy]
+The taxonomy of record contains \textbf{27} skills, and the API always returns
+all 27. Some on-screen copy still reads ``23 skills'' --- stale text from an
+earlier revision. The correct number is 27.
+\end{notebox}
+
+\subsection{The 7 player levels}
+
+Your level is derived only from the rating carried in your games' PGN headers
+(Chess.com and Lichess exports include it). Upload unrated games and the app
+honestly shows no level rather than guessing one.
+
+\begin{center}
+\tabnum
+\begin{tabularx}{\linewidth}{@{}c l l Y@{}}
+\toprule
+\textbf{ID} & \textbf{Name} & \textbf{Rating} & \textbf{Dominant failure mode} \\
+\midrule
+L1 & Newcomer & 0--799 & Tactical invisibility --- misses what was just threatened \\
+L2 & Beginner & 800--1199 & Pattern blindness --- misses tactics beyond one move \\
+L3 & Casual club player & 1200--1499 & Contextual blindness --- misses in game what they solve in puzzles \\
+L4 & Improving club player & 1500--1799 & Strategic vacuum --- sound moves, no unifying plan \\
+L5 & Strong club player & 1800--1999 & Reactive play --- doesn't prevent the opponent's ideas \\
+L6 & Expert / CM & 2000--2299 & Conversion failure --- wins strategically, can't finish \\
+L7 & Master / Titled & 2300+ & Highly individual --- needs personalised diagnosis \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\subsection{The 5 plateaus}
+
+A plateau is a named stall pattern, auto-diagnosed from the \emph{shape} of your
+skill vector --- never self-reported. Zones deliberately overlap; ratings above
+2200 have no formulaic plateau by design (that band is individual-coaching
+territory).
+
+\begin{center}
+\tabnum
+\begin{tabularx}{\linewidth}{@{}l l Y@{}}
+\toprule
+\textbf{Plateau} & \textbf{Rating zone} & \textbf{Target skills} \\
+\midrule
+The blunder wall & 0--1399 & tactical pattern recognition, tactical consistency \\
+The strategy desert & 1400--1600 & strategic planning, pawn endings, endgame principles \\
+The conversion ceiling & 1500--2000 & converting advantages, rook endings, endgame precision \\
+The prophylaxis gap & 1700--1900 & prophylaxis, defence \& counterplay \\
+The precision boundary & 2000--2200 & calculation precision, endgame precision, time mgmt, resilience \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\begin{rulebox}{When a plateau is diagnosed}
+A plateau is only named when \textbf{(a)} your rating falls in its zone,
+\textbf{(b)} at least one of its target skills has real evidence, and
+\textbf{(c)} those target skills together carry at least \textbf{5} evidence
+samples. Among all qualifying plateaus, the one with the \emph{lowest average
+mastery} across its evidenced targets wins. A brand-new account is given no
+diagnosis at all.
+\end{rulebox}
+
+% ===========================================================================
+\section{The Player's Journey}
+% ===========================================================================
+
+This section is the ``how to play'' walkthrough: the screens, in the order you
+meet them.
+
+\subsection{Register and sign in}
+
+Registration asks for a display name, an email, and a password of at least 8
+characters. New accounts are created as role \emph{player} on the \emph{free}
+tier. Sign-in is rate-limited (20 attempts per 15 minutes per address) and
+returns a session token stored in your browser; it slides forward for 14 days
+of activity.
+
+\subsection{The Dashboard (``Games'')}
+
+Your landing screen. Three stat cards summarise everything analysed so far ---
+\textbf{Games analysed}, \textbf{Average accuracy}, and \textbf{Games with a
+blunder} --- above a list of recent games. Each row shows the opening (ECO),
+both players with your side highlighted, the colour-coded result, time control,
+length, a blunder tag if any, and your accuracy. Accuracy is coloured green at
+85+, gold at 75+, red below.
+
+\subsection{Upload games}
+
+Choose the source (Chess.com export, Lichess export, or manual PGN), tell the
+app \textbf{your username as it appears in the PGN} so it can detect which
+colour you played, then paste PGN text or drop a \code{.pgn} file. On submit,
+each game streams its analysis progress live. Unparseable games are listed with
+a reason and never sink the batch.
+
+\begin{rulebox}{Upload limits \& quotas}
+At most \textbf{50 games} per upload. Re-uploads of a game you already have are
+detected by content hash and cost nothing. Analysis is metered by tier:
+anonymous \textbf{1/day}, free \textbf{5/day}, Pro and Academy \textbf{unlimited}.
+Duplicate and over-quota games are never charged.
+\end{rulebox}
+
+\subsection{Game Review}
+
+The move-by-move board. On the left, an evaluation bar, the board oriented to
+your colour, and navigation (buttons or keyboard arrows / Home / End). Every
+move you step to shows a \textbf{classification badge}, the centipawns lost, how
+long you thought, the engine's preferred move, and the top three engine lines.
+On the right: live analysis progress, a \textbf{Game accuracy} card (White vs
+Black, with the engine depth and a tally of each classification), the full move
+list, and an \textbf{Engine summary} coaching note --- either an LLM narrative
+badged ``engine-grounded'' or a deterministic fallback badged ``deterministic''.
+
+\subsection{Player Model}
+
+Headed \emph{``Every score has a receipt. No black box.''} On the left: your
+current level, your diagnosed plateau, an eight-axis skill radar, and a
+mastery-over-time sparkline. On the right: the full skill list with mastery
+bars and trend arrows, and an \textbf{Evidence} panel. Click any skill with
+evidence and it loads up to 20 receipts --- the real moves behind the number,
+each marked as supporting the skill (\yes) or counting against it
+(\no).
+
+\subsection{Training Plan}
+
+Headed \emph{``Prescribed from your diagnosis, not a generic curriculum.''} It
+opens with \textbf{The hypothesis} --- a sentence tied to your diagnosed plateau
+--- then up to three \textbf{focus blocks}. Each names a weak skill, its mastery
+and evidence count, a rationale, and \textbf{matched reading} drawn from a book
+corpus mapped to the taxonomy. A skill needs at least \textbf{3} evidence points
+before it is allowed into a plan.
+
+\subsection{Drills}
+
+Headed \emph{``Every position here is one you actually reached and misplayed.''}
+Each drill is one of your own mistake positions presented as a four-way
+multiple choice --- the engine's best move plus three legal decoys. Answer
+correctly and the card is scheduled further out; answer wrongly and it returns
+tomorrow. A stat block tracks cards \textbf{due}, your day \textbf{streak}, and
+\textbf{retention}. The scheduler is SM-2 spaced repetition (\S\ref{sec:mechanics}).
+
+\subsection{Library}
+
+Two tabs. \textbf{Classics} is a catalogue of famous master games you can load
+into your own account for full engine analysis (costs one quota unit). Because a
+historical game has no honest ``your side,'' a loaded classic is analysed for
+review but is \emph{not} folded into your player model --- studying Morphy
+teaches you about Morphy, not about you. \textbf{Opening explorer} is an
+interactive tree: at every position it shows what the master library played
+there against what \emph{you} have played there in your own analysed games ---
+a direct read on where your repertoire leaks.
+
+\subsection{Account \& data}
+
+GDPR controls. \textbf{Export} downloads every row keyed to you --- games,
+moves, analyses, skill scores, evidence, coaching links --- as a single JSON
+bundle (password fields stripped). \textbf{Delete} requires typing
+\code{DELETE}, then transactionally erases your data, tombstones the account,
+and logs you out. The deletion itself is recorded in an audit log for
+compliance.
+
+% ===========================================================================
+\section{The Mechanics}\label{sec:mechanics}
+% ===========================================================================
+
+This is the rules reference: exactly how a game becomes a diagnosis. The
+worked example in \S\ref{sec:worked} then runs all of it on one real game.
+
+\subsection{The pipeline, end to end}
+
+\begin{enumerate}[leftmargin=1.4em, itemsep=2pt]
+  \item \textbf{Ingest.} The PGN is split (comment-safe), loaded move by move,
+  and stored with before/after positions, clock times, and detected player
+  colour.
+  \item \textbf{Evaluate.} Every position is scored by Stockfish (results are
+  cached, since openings recur), producing an evaluation and ranked candidate
+  lines for each.
+  \item \textbf{Classify.} Each move is labelled \best\ \good\ \inacc\ \mistake\ \blun\
+  by how much it lost against the engine's best, scaled by game phase.
+  \item \textbf{Infer evidence.} Fixed rules read the classified moves and emit
+  ``for'' / ``against'' evidence for specific skills.
+  \item \textbf{Update the model.} Evidence is folded into each skill's
+  Bayesian Knowledge Tracing state; a snapshot records level and plateau.
+  \item \textbf{Harvest \& prescribe.} Mistakes become drills; the training
+  plan is rebuilt; finally the narrator writes a claim-guarded summary.
+\end{enumerate}
+
+\begin{notebox}[Failure isolation]
+The engine analysis is committed and shown to you \emph{before} the enrichment
+step (evidence, model, drills, narration) runs. Enrichment is wrapped so that
+if any part of it fails, your analysis still stands as ``done'' --- and it is
+idempotent, so a restart mid-way never double-counts evidence.
+\end{notebox}
+
+\subsection{Move classification}
+
+A move's raw loss is how many centipawns worse it is than the engine's best
+reply. Thresholds are \textbf{phase-scaled} --- the endgame is judged more
+strictly than the opening, where many moves are near-equal:
+
+\begin{center}
+\tabnum
+\begin{tabularx}{\linewidth}{@{}l c c c c@{}}
+\toprule
+\textbf{Phase} & \textbf{good $>$} & \textbf{inaccuracy $\geq$} & \textbf{mistake $\geq$} & \textbf{blunder $\geq$} \\
+\midrule
+Opening & 5 & 60 & 150 & 350 \\
+Middlegame & 5 & 50 & 120 & 300 \\
+Endgame & 5 & 40 & 90 & 200 \\
+\bottomrule
+\end{tabularx}\\[4pt]
+{\footnotesize\color{slate}Values are centipawns of \emph{effective} loss. At or below ``good'', a move is \best.}
+\end{center}
+
+\subsubsection{Phase detection is queen-aware}
+Phase is not just move number. Very low material (a lone minor per side or less,
+$\leq 500$cp) forces \textbf{endgame} even early --- an early queen trade into a
+king-and-pawn position is an endgame. Otherwise the first 20 plies are
+\textbf{opening}; after that, low non-pawn material \emph{with no queens on the
+board} ($\leq 1400$cp) is \textbf{endgame}; everything else is
+\textbf{middlegame}. Queens keep a position out of the endgame even when other
+material is thin.
+
+\subsubsection{Win-probability dampening}
+Raw centipawns mislead in decided positions: going from +900 to +700 is not a
+blunder, because you were completely winning before and after. The classifier
+converts evaluations to win probability on the Lichess curve and, \emph{only
+when both endpoints sit deep in a decided zone}, blends the raw loss toward the
+much smaller win-probability loss. A genuine thrown win --- say +2000 collapsing
+to +200 --- is \emph{not} dampened, because the second endpoint is no longer
+decided. Missing a forced mate is always at least a mistake regardless of
+centipawns.
+
+\begin{rulebox}{Accuracy score}
+Per move, the app computes win-probability points lost, maps each to a 0--100
+accuracy on the Lichess curve
+($103.1668\,e^{-0.04354x}-3.1669$), then blends the arithmetic and harmonic
+means of the whole game. The harmonic term is what makes a single game-losing
+blunder cost more than a plain average would.
+\end{rulebox}
+
+\subsection{Turning moves into evidence}
+
+Rules fire only on \emph{your} moves and emit evidence with a direction and a
+weight in $[0,1]$. Error severity is graded blunder $=1$, mistake $=0.6$,
+inaccuracy $=0.3$. A representative selection:
+
+\begin{center}
+\tabnum
+\begin{tabularx}{\linewidth}{@{}l Y c c@{}}
+\toprule
+\textbf{Rule} & \textbf{Fires when} & \textbf{Skill} & \textbf{Dir / weight} \\
+\midrule
+missed-forced-mate & you had a forced mate and gave it up & calculation precision & against / 1.0 \\
+opening-error & opening-phase mistake or blunder & opening principles & against / sev. \\
+middlegame-blunder & a blunder in the middlegame & tactical consistency & against / 1.0 \\
+\dots{}-blunder-pattern & (same move, also) & tactical pattern recog. & against / 0.5 \\
+hanging-piece-left & error that leaves a piece capturable \& undefended & piece activity & against / 0.4 \\
+endgame-error & endgame mistake or blunder & endgame precision & against / sev. \\
+snap-blunder & error played in $\leq 3$s & time management & against / 0.4 \\
+conversion-failure & reached $\geq +400$cp but didn't win & converting advantages & against / 0.8 \\
+sustained-initiative & grew an even game to $\geq +500$ cleanly & attack \& initiative & for / 0.55 \\
+held-worse-position & were $\leq -300$ yet didn't lose & defence \& counterplay & for / 0.5 \\
+consistent-repertoire & same opening, played cleanly, $\geq 3$ games & opening repertoire & for / 0.4 \\
+sound-novelty & sound engine-approved deviation from book & opening prep. & for / 0.3 \\
+prophylaxis probe & a null-move probe reveals a real threat & prophylaxis & for/against \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\begin{notebox}[The prophylaxis probe]
+To judge prophylaxis, the app performs a ``null-move'' probe: it lets your
+opponent move twice and asks the engine how much that would have cost you. If a
+real threat existed ($\geq 300$cp) and you let it land, that is evidence against
+your prophylaxis; if it existed and you neutralised it, that is evidence for.
+The weight is derived from the threat's size, never from the language model.
+Probes are skipped when you were in check (the position would be illegal) and
+capped at six per game.
+\end{notebox}
+
+\subsection{Bayesian Knowledge Tracing: how a score moves}
+
+Each skill holds a probability \code{pKnow} that you have mastered it; mastery
+shown on screen is simply $\text{round}(\mathtt{pKnow}\times 100)$. A new skill
+starts at \code{pKnow}~$=0.3$ (mastery 30). Each piece of evidence updates it
+with a weighted Bayesian step, using fixed parameters (slip $0.1$, guess $0.2$,
+learning transition $0.15$).
+
+\begin{rulebox}{The update, in words}
+A ``for'' observation raises \code{pKnow} toward the Bayesian posterior and adds
+a small learning bump; an ``against'' observation lowers it. \textbf{Weight
+scales the whole step}: a weight-1 blunder moves the number hard, a weight-0.3
+inaccuracy nudges it, a weight-0 observation does nothing at all. Evidence is
+folded in sequence, so order within a skill matters.
+\end{rulebox}
+
+The concrete effect of a \emph{single} full-weight observation from a fresh
+skill (mastery 30):
+
+\begin{center}
+\tabnum
+\begin{tabularx}{\linewidth}{@{}Y c c@{}}
+\toprule
+\textbf{Observation} & \textbf{New \code{pKnow}} & \textbf{New mastery} \\
+\midrule
+one ``for'', weight 1.0 & 0.710 & \textbf{71} \\
+one ``against'', weight 1.0 & 0.051 & \textbf{5} \\
+one ``against'', weight 0.3 & 0.225 & \textbf{23} \\
+weight 0 (any) & 0.300 & 30 (no change) \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+Confidence in the whole model grows with the number of samples, capped:
+$\min(95,\ \text{samples}\times 3)$ percent.
+
+\subsection{Own-mistake drills and SM-2 scheduling}
+
+Every mistake or blunder of yours that lost at least \textbf{100}cp --- and for
+which the engine has a genuinely better move --- becomes a drill. The correct
+answer is the engine's own best move; positions are de-duplicated so you never
+drill the same one twice.
+
+Scheduling is SM-2-lite. A card carries an \emph{ease} factor (start 2.0,
+floored 1.3, capped 2.6) and an interval that grows multiplicatively so a
+correct answer can never shorten it.
+
+\begin{rulebox}{The schedule}
+\textbf{Correct:} ease rises (more for better-known skills), and the next
+interval is $\text{interval}\times\text{ease}$, capped at \textbf{21 days}.
+\textbf{Incorrect:} ease drops by 0.2, the card returns in 5 minutes, and a
+lapse is recorded. After \textbf{4 lapses} a card is suspended as a ``leech''
+and stops being scheduled. A card only counts toward your streak and retention
+when it was genuinely due --- you cannot grind the same card for credit.
+\end{rulebox}
+
+An answer is also accepted if it is any engine move within about 25cp of the
+best --- two equally winning moves are both marked correct.
+
+\begin{center}
+\tabnum
+\begin{tabularx}{\linewidth}{@{}c c c Y@{}}
+\toprule
+\textbf{Correct answer \#} & \textbf{Ease} & \textbf{Next interval} & \textbf{Meaning} \\
+\midrule
+1 & 2.08 & 2.08 days & graduates from ``new'' \\
+2 & 2.16 & $\approx$4.5 days & \\
+3 & 2.24 & $\approx$10 days & \\
+4 & 2.32 & 21 days (capped) & considered learned \\
+\bottomrule
+\end{tabularx}\\[3pt]
+{\footnotesize\color{slate}Progression for a card on a mastery-30 skill, answered correctly each time.}
+\end{center}
+
+% ===========================================================================
+\section{A Complete Game of Play}\label{sec:worked}
+% ===========================================================================
+
+We now run the whole system on one real game: Paul Morphy's ``Opera Game''
+(Paris, 1858), analysed as though \emph{you uploaded it and played Black} --- the
+allied Duke and Count. Every number, verdict, and skill change in the boxes
+below is the \textbf{actual output} of the Master Chess pipeline run on this
+game's moves, not an illustration.
+
+\begin{notebox}[This example was generated, not hand-written]
+The figures here come from running the app's real classifier, evidence rules,
+and Bayesian update on the stored analysis of this game. One consequence worth
+stating up front: the model's job is to read the moves honestly, and honest
+reading sometimes surprises --- as it does here.
+\end{notebox}
+
+\begin{playbox}[Step 1 — Upload \& ingest]
+You upload the game as Black. The ingester reads the header ---
+\code{White: Paul Morphy}, \code{Black: Duke Karl / Count Isouard},
+\code{Result: 1-0}, \code{ECO: C41}, \code{Opening: Philidor Defense} --- matches
+your name to the Black seat, and replays all 33 plies, storing the position
+before and after each. The moves:
+
+\vspace{4pt}
+{\ttfamily\small 1.e4 e5 2.Nf3 d6 3.d4 Bg4 4.dxe5 Bxf3 5.Qxf3 dxe5 6.Bc4 Nf6
+7.Qb3 Qe7 8.Nc3 c6 9.Bg5 b5 10.Nxb5 cxb5 11.Bxb5+ Nbd7 12.O-O-O Rd8 13.Rxd7
+Rxd7 14.Rd1 Qe6 15.Bxd7+ Nxd7 16.Qb8+ Nxb8 17.Rd8\#}
+
+\vspace{4pt}
+\footnotesize\color{slate}
+A historical game carries no rating header, so --- as \S\ref{sec:mechanics}
+requires --- no \emph{level} or \emph{plateau} is diagnosed from it. The skill
+evidence below is generated all the same.
+\end{playbox}
+
+\begin{playbox}[Step 2 — Evaluate \& classify (all of Black's moves)]
+Stockfish scores every position; the classifier judges each Black move against
+the best available, phase-scaled. This is the complete, verbatim classification:
+
+\begin{center}
+\tabnum
+\begin{tabularx}{\linewidth}{@{}l l l c Y@{}}
+\toprule
+\textbf{Move} & \textbf{Played} & \textbf{Phase} & \textbf{cp lost} & \textbf{Verdict} \\
+\midrule
+1\dots e5 & & opening & 3 & \best \\
+2\dots d6 & & opening & 9 & \good \\
+3\dots Bg4 & & opening & 65 & \inacc \\
+4\dots Bxf3 & & opening & 54 & \good \\
+5\dots dxe5 & & opening & 0 & \best \\
+6\dots Nf6 & & opening & 67 & \inacc \\
+7\dots Qe7 & & opening & 18 & \good \\
+8\dots c6 & & opening & 23 & \good \\
+9\dots b5 & & opening & 84 & \inacc \\
+10\dots cxb5 & & opening & 139 & \inacc \\
+11\dots Nbd7 & & middlegame & 33 & \good \\
+12\dots Rd8 & & middlegame & 58 & \inacc \\
+13\dots Rxd7 & & middlegame & 1 & \best \\
+14\dots Qe6 & & middlegame & 132 & \mistake \\
+15\dots Nxd7 & & middlegame & mate & \blun \\
+16\dots Nxb8 & & middlegame & 0 & \best \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+Two things the real data teaches. First, the game is classified
+\textbf{opening} then \textbf{middlegame} throughout --- the queen-aware phase
+rule keeps it out of the endgame despite the piece sacrifices. Second, the
+famous ``losing'' move \textbf{9\dots b5 is only an inaccuracy} (84cp). The move
+the engine actually flags as the \textbf{blunder is 15\dots Nxd7}, which walked
+into \code{16.Qb8+ Nxb8 17.Rd8\#} --- a forced mate (shown as ``mate'' rather
+than a centipawn figure).
+\end{playbox}
+
+\begin{playbox}[Step 3 — Inferred evidence (exactly what the rules emit)]
+The rule engine reads those classifications. A crucial detail visible here:
+\textbf{inaccuracies emit no per-move skill evidence} --- only clearly good
+moves (\best/\good) and clear errors (\mistake/\blun) do. So Bg4, Nf6, b5, cxb5,
+and Rd8 produce nothing. What actually fires:
+
+\begin{center}
+\tabnum
+\begin{tabularx}{\linewidth}{@{}l Y l@{}}
+\toprule
+\textbf{Skill} & \textbf{From (real moves)} & \textbf{Dir / wt} \\
+\midrule
+Opening principles & e5, d6, Bxf3, dxe5, Qe7, c6 (six sound opening moves) & for / 0.15 \\
+Tactical consistency & Nbd7, Rxd7, Nxb8 (sound middlegame) & for / 0.12 \\
+Tactical consistency & 15\dots Nxd7 (middlegame blunder) & against / 1.0 \\
+Tactical pattern recog. & 14\dots Qe6 (middlegame mistake) & against / 0.6 \\
+Tactical pattern recog. & 15\dots Nxd7 (blunder pattern) & against / 0.5 \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+Note what does \emph{not} fire: no ``conversion failure'' (Black never reached
+$+400$), no ``held-worse-position'' credit (Black lost), and no resilience
+verdict (the run did not meet the sample conditions). The model records only
+what the game shows.
+\end{playbox}
+
+\begin{playbox}[Step 4 — The player model updates (real Bayesian output)]
+Each skill folds its evidence in sequence from a starting mastery of 30. The
+actual results:
+
+\begin{center}
+\tabnum
+\begin{tabularx}{\linewidth}{@{}Y c c c@{}}
+\toprule
+\textbf{Skill} & \textbf{Net evidence} & \textbf{Mastery} & \textbf{Trend} \\
+\midrule
+Opening principles & 6 for & $30 \to 66$ & $\uparrow$ \\
+Tactical consistency & 3 for, 1 against (wt 1) & $30 \to 12$ & $\downarrow$ \\
+Tactical pattern recognition & 2 against & $30 \to 9$ & $\downarrow$ \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+The surprise is honest and instructive: \textbf{opening principles rises to 66}
+even though Black \emph{lost the game}. By cp-loss, Black's opening was sound ---
+the defeat came from two middlegame errors, not the opening. A human eye
+remembers ``the game where I got mated''; the model measures each phase on its
+own evidence. That is precisely the black-box the receipts exist to open.
+\end{playbox}
+
+\begin{playbox}[Step 5 — Drills harvested]
+Two moves qualify as own-mistake drills --- classified \mistake\ or \blun\ and
+losing at least 100cp:
+
+\begin{center}
+\tabnum
+\begin{tabularx}{\linewidth}{@{}l l Y@{}}
+\toprule
+\textbf{Position before} & \textbf{Skill} & \textbf{Correct answer} \\
+\midrule
+14\dots Qe6 (132cp) & tactical pattern recognition & the engine's best move \\
+15\dots Nxd7 (mate) & tactical consistency & the engine's best move \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+Each becomes a four-choice card, due immediately, entering SM-2 scheduling.
+Note that \code{9\dots b5} and \code{10\dots cxb5} are \emph{not} harvested ---
+b5 lost under 100cp, and both were inaccuracies rather than outright errors.
+\end{playbox}
+
+\begin{playbox}[Step 6 — Training plan prescribed]
+A skill needs at least 3 evidence samples to enter a plan. Here that admits
+\emph{opening principles} (6 samples) and \emph{tactical consistency} (4); with
+only 2 samples, \emph{tactical pattern recognition} is honestly held back
+despite being the lowest score. Because the historical game has no rating, no
+plateau is diagnosed, so the plan uses its no-plateau hypothesis:
+
+\vspace{3pt}
+\textbf{The hypothesis.} \emph{``Your weakest evidenced skills right now are
+tactical consistency, opening principles. No plateau pattern is diagnosable yet
+(needs a PGN-header rating), but these are the lowest-mastery skills we have real
+evidence for.''}
+
+\vspace{4pt}
+\textbf{Focus block 1 --- Tactical consistency} (mastery 12, 4 samples).
+\emph{Matched reading} from the corpus: \emph{Art of Combination} (Blokh),
+\emph{Encyclopedia of Chess Combinations} (Chess Informant), \emph{1000
+Checkmate Combinations} (Henkin).
+
+\vspace{2pt}
+\textbf{Focus block 2 --- Opening principles} (mastery 66, 6 samples), carrying
+its own matched titles. It ranks second only because it is the next evidenced
+skill --- the plan is transparent about that rather than inventing urgency.
+\end{playbox}
+
+\begin{playbox}[Step 7 — The engine-grounded note]
+Finally the narrator is handed \emph{only} verified facts --- result, accuracy,
+blunder count, and the worst move (\code{15\dots Nxd7}, a mate-allowing blunder)
+--- and asked for two to four sentences, then re-checked by the claim guard. A
+passing note reads like:
+
+\vspace{2pt}
+\emph{``Your opening was solid --- it was the middlegame that cost you. 14\dots
+Qe6 let the pressure build, and 15\dots Nxd7 walked into a forced mate with
+16.Qb8+ and 17.Rd8\#. The habit to drill is the blunder-check before a
+recapture when your king is still in the centre.''}
+
+\vspace{4pt}
+Every move and claim there maps to the real record. Had the draft said ``your
+9\dots b5 was the losing blunder'' --- contradicting the classifier, which
+graded b5 an inaccuracy --- the guard would reject it and you would see the
+deterministic summary instead. \emph{(That is the exact error this manual's first
+draft made before it was checked against the engine.)}
+\end{playbox}
+
+\begin{notebox}[What you would do next]
+Open \emph{Drills} the next day: the \code{15\dots Nxd7} and \code{14\dots Qe6}
+positions are waiting. Choose the engine's move and the card schedules out; miss
+it and it returns tomorrow until the gap closes. That is the loop --- diagnose,
+explain, prescribe --- closing on your own moves.
+\end{notebox}
+
+% ===========================================================================
+\section{Reference Card}
+% ===========================================================================
+
+\subsection{Screens at a glance}
+
+\begin{center}
+\begin{tabularx}{\linewidth}{@{}l Y@{}}
+\toprule
+\textbf{Games} & dashboard: stats + recent games \\
+\textbf{Upload} & paste/drop PGN, live analysis \\
+\textbf{Game Review} & per-move engine analysis, accuracy, summary \\
+\textbf{Player Model} & level, plateau, 27 skills, evidence receipts \\
+\textbf{Training Plan} & hypothesis + 3 focus blocks + books \\
+\textbf{Drills} & SM-2 review of your own mistakes \\
+\textbf{Library} & classic games + opening explorer \\
+\textbf{Account} & GDPR export / delete \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\subsection{Numbers worth remembering}
+
+\begin{center}
+\tabnum
+\begin{tabularx}{\linewidth}{@{}Y l@{}}
+\toprule
+Skills / categories / levels / plateaus & 27 / 4 / 7 / 5 \\
+Fresh skill mastery & 30 \\
+Blunder threshold (mid / open / end) & 300 / 350 / 200 cp \\
+Drill harvest threshold & 100 cp lost \\
+Drill accept tolerance & $\sim$25 cp of best \\
+SM-2 ease (start / floor / cap) & 2.0 / 1.3 / 2.6 \\
+Max review interval & 21 days \\
+Leech suspension & 4 lapses \\
+Plateau minimum samples & 5 \\
+Plan minimum samples per skill & 3 \\
+Free-tier analyses / day & 5 \\
+Max games per upload & 50 \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\subsection{Classification legend}
+
+\begin{center}
+\best\quad\good\quad\inacc\quad\mistake\quad\blun
+\end{center}
+
+\vfill
+\begin{center}
+{\color{rulehair}\rule{0.5\linewidth}{0.6pt}}\\[4pt]
+{\sffamily\footnotesize\color{slate}
+Master Chess \textbullet\ Field Manual \textbullet\ Diagnose \textbullet\ Explain
+\textbullet\ Prescribe}
+\end{center}
+
+\end{document}

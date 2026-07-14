@@ -1,0 +1,17 @@
+node_modules/
+dist/
+data/*.db
+data/*.db-journal
+data/*.db-wal
+data/*.db-shm
+.env
+.env.local
+*.tsbuildinfo
+
+# LaTeX build artifacts (docs/manual) — keep the .tex source and final .pdf
+docs/manual/*.aux
+docs/manual/*.log
+docs/manual/*.out
+docs/manual/*.toc
+docs/manual/build.log
+docs/manual/pg-*.png

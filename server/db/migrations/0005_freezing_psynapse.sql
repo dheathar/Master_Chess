@@ -1,0 +1,1 @@
+ALTER TABLE `review_queue` ADD `suspended` integer DEFAULT false NOT NULL;

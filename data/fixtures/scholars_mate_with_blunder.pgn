@@ -1,0 +1,13 @@
+[Event "Casual Game"]
+[Site "Chess.com"]
+[Date "2026.06.01"]
+[Round "1"]
+[White "TestPlayer"]
+[Black "Opponent"]
+[Result "1-0"]
+[WhiteElo "1200"]
+[BlackElo "1180"]
+[TimeControl "600"]
+[ECO "C50"]
+
+1. e4 {[%clk 0:10:00]} e5 {[%clk 0:10:00]} 2. Bc4 {[%clk 0:09:55]} Nc6 {[%clk 0:09:50]} 3. Qh5 {[%clk 0:09:48]} Nf6 {[%clk 0:09:20]} 4. Qxf7# {[%clk 0:09:40]} 1-0
