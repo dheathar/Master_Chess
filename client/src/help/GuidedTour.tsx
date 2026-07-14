@@ -27,7 +27,9 @@ export function GuidedTour({
 }) {
   const [index, setIndex] = useState(0);
   const [rect, setRect] = useState<Rect | null>(null);
+  const [pos, setPos] = useState<{ top: number; left: number } | null>(null);
   const pollRef = useRef<number | null>(null);
+  const popRef = useRef<HTMLDivElement>(null);
 
   const step = TOUR_STEPS[index];
   const isFirst = index === 0;
@@ -99,20 +101,39 @@ export function GuidedTour({
     return () => window.removeEventListener("keydown", onKey);
   }, [next, back, onExit]);
 
-  // Popover placement: to the right of the target if it fits, else below, else centered.
-  const popoverStyle: React.CSSProperties = (() => {
-    if (!rect) {
-      return { top: "50%", left: "50%", transform: "translate(-50%, -50%)" };
+  // Placement: measure the popover's real height and clamp it fully inside the
+  // viewport, so a target near a screen edge never pushes the action buttons
+  // off-screen. Prefer right of the target, else below, else above; then clamp.
+  useLayoutEffect(() => {
+    const pop = popRef.current;
+    if (!pop || !rect) {
+      setPos(null); // centered via CSS fallback
+      return;
     }
     const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const popW = pop.offsetWidth || POP_W;
+    const popH = pop.offsetHeight;
+    let left: number;
+    let top: number;
     const spaceRight = vw - (rect.left + rect.width);
-    if (spaceRight > POP_W + 24) {
-      return { top: Math.max(16, rect.top), left: rect.left + rect.width + 16 };
+    if (spaceRight > popW + 24) {
+      left = rect.left + rect.width + 16;
+      top = rect.top;
+    } else {
+      left = rect.left;
+      top = rect.top + rect.height + 16; // below
+      if (top + popH > vh - 16) top = rect.top - popH - 16; // not enough room below → above
     }
-    // place below, clamped horizontally
-    const left = Math.min(Math.max(16, rect.left), vw - POP_W - 16);
-    return { top: rect.top + rect.height + 16, left };
-  })();
+    // Final clamp on both axes (16px viewport margin).
+    top = Math.min(Math.max(16, top), Math.max(16, vh - popH - 16));
+    left = Math.min(Math.max(16, left), Math.max(16, vw - popW - 16));
+    setPos({ top, left });
+  }, [rect, index]);
+
+  const popoverStyle: React.CSSProperties = pos
+    ? { top: pos.top, left: pos.left }
+    : { top: "50%", left: "50%", transform: "translate(-50%, -50%)" };
 
   return (
     <div className="tour-root" role="dialog" aria-modal="true" aria-label="Guided tour">
@@ -131,7 +152,7 @@ export function GuidedTour({
         />
       ) : null}
       {/* Popover */}
-      <div className="tour-popover" style={{ width: POP_W, ...popoverStyle }} onClick={(e) => e.stopPropagation()}>
+      <div ref={popRef} className="tour-popover" style={{ width: POP_W, ...popoverStyle }} onClick={(e) => e.stopPropagation()}>
         <div className="tour-popover-progress">
           Step {index + 1} of {TOUR_STEPS.length}
         </div>

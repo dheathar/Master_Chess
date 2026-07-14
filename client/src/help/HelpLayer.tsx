@@ -25,6 +25,7 @@ export function HelpLayer({
   const [chatOpen, setChatOpen] = useState(false);
   const [demoBusy, setDemoBusy] = useState(false);
   const [demoError, setDemoError] = useState<string | null>(null);
+  const [demoIntro, setDemoIntro] = useState<string | null>(null);
 
   // Auto-launch the tour once, on first ever login.
   useEffect(() => {
@@ -50,6 +51,13 @@ export function HelpLayer({
       const { gameId } = await api.loadLibraryGame(game.id);
       setMenuOpen(false);
       openReview(gameId);
+      setDemoIntro(
+        `This is a demo: ${game.white} vs ${game.black}${game.opening ? ` (${game.opening})` : ""}. ` +
+          "Stockfish is analysing it right now — give it a moment. When it finishes, step through the game with the " +
+          "arrow buttons (or ← → keys): each move shows a colour-coded verdict (Best, Good, Inaccuracy, Mistake, " +
+          "Blunder), how much it lost, and the engine's preferred move. This is exactly how your own uploaded games " +
+          "are reviewed — the difference is that your games also build your player model.",
+      );
     } catch (err) {
       setDemoError(err instanceof Error ? err.message : "Couldn't load a demo game.");
     } finally {
@@ -61,6 +69,17 @@ export function HelpLayer({
     <>
       {tourOpen ? <GuidedTour navigate={navigate} onExit={exitTour} /> : null}
       {chatOpen ? <HelpChat screen={screen} onClose={() => setChatOpen(false)} /> : null}
+
+      {/* Demo-game narrative — explains what the user is about to watch. */}
+      {demoIntro ? (
+        <div className="demo-intro" role="dialog" aria-label="Demo game">
+          <div className="demo-intro-title">▶ Watching a demo game</div>
+          <p className="demo-intro-body">{demoIntro}</p>
+          <button type="button" className="demo-intro-btn" onClick={() => setDemoIntro(null)}>
+            Got it
+          </button>
+        </div>
+      ) : null}
 
       {/* Launcher menu */}
       {menuOpen ? (
