@@ -1,0 +1,12 @@
+node_modules
+dist
+.git
+.gitignore
+data
+.env
+.env.local
+*.log
+npm-debug.log*
+docs/manual/preview
+docs/manual/*.pdf
+**/*.test.ts

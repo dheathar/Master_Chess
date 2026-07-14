@@ -1,0 +1,36 @@
+# Local production-parity run (not required by Dokploy, which builds the
+# Dockerfile directly). Useful for verifying the image before deploying:
+#   ADMIN_BOOTSTRAP_PASSWORD=change-me-please docker compose up --build
+services:
+  master-chess:
+    build: .
+    image: master-chess:latest
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: "8030"
+      DATABASE_URL: ./data/masterchess.db
+      STOCKFISH_BIN: /usr/games/stockfish
+      ENGINE_POOL_SIZE: "2"
+      ENGINE_DEPTH: "16"
+      ENGINE_MULTIPV: "4"
+      # Optional: seeds an admin account on first boot (min 12 chars).
+      ADMIN_BOOTSTRAP_PASSWORD: ${ADMIN_BOOTSTRAP_PASSWORD:-}
+    volumes:
+      # Persist the SQLite database (users, games, library) across redeploys.
+      - master-chess-data:/app/data
+    ports:
+      - "8030:8030"
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://localhost:8030/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+
+volumes:
+  master-chess-data:
