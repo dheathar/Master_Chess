@@ -4,6 +4,8 @@ import type {
   ExplorerResponse,
   GameDetailResponse,
   GameSummary,
+  HelpChatMessage,
+  HelpChatResponse,
   LibraryGameSummary,
   LibraryGamesQuery,
   LibraryGamesResponse,
@@ -116,6 +118,16 @@ export async function loadLibraryGame(id: string): Promise<LoadLibraryGameRespon
 
 export async function getExplorer(fen: string): Promise<ExplorerResponse> {
   return request<ExplorerResponse>(`/library/explorer?fen=${encodeURIComponent(fen)}`);
+}
+
+export async function helpChat(
+  messages: HelpChatMessage[],
+  screen?: string,
+): Promise<HelpChatResponse> {
+  return request<HelpChatResponse>("/help/chat", {
+    method: "POST",
+    body: JSON.stringify({ messages, screen }),
+  });
 }
 
 export async function getDueDrills(): Promise<{ drills: DueDrill[] }> {

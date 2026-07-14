@@ -10,6 +10,8 @@ import { AccountPage } from "./pages/AccountPage";
 import { DrillPage } from "./pages/DrillPage";
 import { TrainingPlanPage } from "./pages/TrainingPlanPage";
 import { Sidebar, type SidebarView } from "./components/Sidebar";
+import { HelpLayer } from "./help/HelpLayer";
+import type { TourNav } from "./help/tourSteps";
 
 function viewForSidebar(view: SidebarView): View {
   switch (view) {
@@ -55,6 +57,11 @@ export function App() {
   const sidebarActive: SidebarView =
     view.name === "review" || view.name === "upload" || view.name === "account" ? "dashboard" : view.name;
 
+  const tourNavigate = (target: TourNav) => {
+    if (target === "upload") setView({ name: "upload" });
+    else setView(viewForSidebar(target));
+  };
+
   return (
     <div className="app-shell">
       <Sidebar
@@ -82,6 +89,11 @@ export function App() {
           <DashboardPage onOpenGame={(gameId) => setView({ name: "review", gameId })} onUpload={() => setView({ name: "upload" })} />
         )}
       </main>
+      <HelpLayer
+        screen={view.name}
+        navigate={tourNavigate}
+        openReview={(gameId) => setView({ name: "review", gameId })}
+      />
     </div>
   );
 }

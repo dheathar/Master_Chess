@@ -25,7 +25,7 @@ export function Sidebar({
 
   return (
     <aside className="sidebar">
-      <div className="sidebar-brand">
+      <div className="sidebar-brand" data-tour="brand">
         <span className="sidebar-brand-glyph">♔</span>
         <div>
           <div className="sidebar-brand-name">Master Chess</div>
@@ -38,6 +38,7 @@ export function Sidebar({
           <button
             key={item.key}
             type="button"
+            data-tour={`nav-${item.key}`}
             className={`sidebar-nav-item ${active === item.key ? "active" : ""}`}
             onClick={() => onNavigate(item.key)}
           >
@@ -48,7 +49,7 @@ export function Sidebar({
       </nav>
 
       <div className="sidebar-footer">
-        <button type="button" className="sidebar-upload-btn" onClick={onUpload}>
+        <button type="button" className="sidebar-upload-btn" data-tour="upload" onClick={onUpload}>
           <span style={{ fontSize: 15, lineHeight: 1 }}>+</span> Upload games
         </button>
         <div className="sidebar-user">

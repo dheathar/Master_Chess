@@ -375,3 +375,26 @@ export const analysisProgressEventSchema = z.object({
   movesTotal: z.number().int(),
 });
 export type AnalysisProgressEvent = z.infer<typeof analysisProgressEventSchema>;
+
+// ── Help / support assistant ─────────────────────────────────────────────
+
+export const helpChatMessageSchema = z.object({
+  role: z.enum(["user", "assistant"]),
+  content: z.string().min(1).max(2000),
+});
+export type HelpChatMessage = z.infer<typeof helpChatMessageSchema>;
+
+export const helpChatRequestSchema = z.object({
+  /** Full conversation so far (oldest first), ending with the user's latest question. */
+  messages: z.array(helpChatMessageSchema).min(1).max(20),
+  /** The screen the user is on, for contextual answers (free-form, optional). */
+  screen: z.string().max(40).optional(),
+});
+export type HelpChatRequest = z.infer<typeof helpChatRequestSchema>;
+
+export const helpChatResponseSchema = z.object({
+  answer: z.string(),
+  /** False when the LLM backend is unavailable and a deterministic fallback was returned. */
+  llmAvailable: z.boolean(),
+});
+export type HelpChatResponse = z.infer<typeof helpChatResponseSchema>;

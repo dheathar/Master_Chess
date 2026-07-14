@@ -32,7 +32,7 @@ export function AuthPage() {
           <span className="brand-glyph">♔</span>
           <h1>Master Chess</h1>
         </div>
-        <p className="brand-tagline">The coach that reads your games, not the internet's.</p>
+        <p className="brand-tagline">Turn your own games into your training plan.</p>
 
         <div className="auth-tabs">
           <button

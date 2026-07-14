@@ -9,6 +9,7 @@ import { playerModelRouter } from "./routes/playerModel";
 import { libraryRouter } from "./routes/library";
 import { drillsRouter } from "./routes/drills";
 import { prescriptionRouter } from "./routes/prescription";
+import { helpRouter } from "./routes/help";
 import { attachUser } from "./auth/middleware";
 import { ensureSeedAdmin, purgeExpiredSessions } from "./auth/authService";
 import { resumeInterruptedAnalyses } from "./pipeline/analysisQueue";
@@ -38,6 +39,7 @@ app.use("/api/player-model", playerModelRouter);
 app.use("/api/library", libraryRouter);
 app.use("/api/drills", drillsRouter);
 app.use("/api/prescription", prescriptionRouter);
+app.use("/api/help", helpRouter);
 
 app.get("/api/health", (_req, res) => {
   res.json({ ok: true, engine: process.env.STOCKFISH_BIN ?? "stockfish" });
