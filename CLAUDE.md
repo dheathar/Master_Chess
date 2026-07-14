@@ -102,6 +102,11 @@ diagnosis), `api.ts` (zod schemas shared client↔server).
   snapshots only run when `games.player_color` is set (`analysisQueue.ts`:
   `if (!gameRow.playerColor) return;`). See the Library gotcha below.
 - **Never commit** `data/*.db`, `.env`, or anything with real user data.
+- **Tests use an isolated DB.** `npm test` runs against a fresh, disposable
+  `data/test.db` (created + migrated by `vitest.globalSetup.ts`, pointed to via
+  `test.env.DATABASE_URL` in `vitest.config.ts`). Never point tests back at
+  `masterchess.db` — that is what previously filled the real library with
+  Alice/Bob fixture rows.
 
 ---
 
@@ -139,19 +144,68 @@ diagnosis), `api.ts` (zod schemas shared client↔server).
 
 ---
 
-## 6. Status
+## 6. Growing the library
+
+The master-game library and opening explorer are seeded on first boot from every
+`.pgn` in `server/library/seed/` (`ensureLibrarySeeded`), imported in sorted
+order so hand-titled classics win dedupe over the bulk corpus:
+
+- `classics.pgn` — 5 hand-titled classics (Opera, Immortal, Evergreen, Game of
+  the Century, Kasparov's Immortal).
+- `golden.pgn` — the curated golden-start corpus: **~6,170 games** from Morphy,
+  Capablanca, Fischer, Tal, and Kasparov (PGN Mentor), all ECO-tagged.
+
+**Importing is cheap** — it only parses PGN, stores rows, and builds the opening
+tree. **No Stockfish runs at import time.** Engine analysis happens only when a
+*user loads a specific game* into their account ("Play through"). So bulk import
+of thousands of games is fine; it is per-game *load* that costs engine time.
+
+Grow it with `npm run library:import -- <file.pgn> --source <classic|twic|lichess|upload>`,
+or drop a `.pgn` into the seed directory.
+
+**Free, legal PGN sources** (game moves/facts are not copyrightable; check each
+site's terms before *redistributing* a bundled DB):
+
+- **PGN Mentor** (pgnmentor.com) — curated per-player / per-event collections,
+  clean and well-tagged. Best for a "famous games" library. *(golden.pgn is from
+  here.)*
+- **TWIC — The Week in Chess** (theweekinchess.com) — weekly tournament PGN dumps
+  going back decades. Use `--source twic`.
+- **Lichess open database** (database.lichess.org) — enormous (all rated games by
+  month, plus a broadcast/master set). Sample/filter; never import wholesale.
+- **Caissabase / KingBase** — large aggregated master DBs (usually 2000+ Elo).
+
+**Caveats:**
+1. **Library games ≠ drills.** Drills are harvested only from a *player's own*
+   classified mistakes (`drillFactory`). Imported master games populate the
+   library/explorer, not the drill queue.
+2. **Sample deliberately.** Don't dump a full TWIC archive — a few thousand
+   high-quality games make a rich explorer without a bloated repo/DB.
+3. **Puzzles as drills would be new work.** Lichess's ~4M-puzzle CSV (FEN +
+   solution + themes + rating) is a ready drill corpus, but wiring it in needs a
+   new ingestion path — the current `drillFactory` only builds drills from a
+   player's classified moves.
+
+The library browser (`/library/games` + `LibraryPage`) supports full-text search
+(players/opening/event), ECO-prefix / result / source filters, sorting, and
+pagination — driven entirely by the metadata these sources carry. Query logic is
+the exported, unit-tested `queryLibraryGames`.
+
+## 7. Status
 
 - A five-domain audit produced ~50 findings, fixed across **7 phases** (BKT
   correctness, LLM safety, prophylaxis probe, engine robustness, SM-2/player
   model/classification/drills, security/backend, cosmetic+docs).
-- **200 tests pass** (`npm test`); `tsc --noEmit` is clean.
+- **206 tests pass** (`npm test`); `tsc --noEmit` is clean.
 - Migrations `0000`–`0006` applied (latest: hashed session tokens).
+- Library seeded with a ~6,170-game golden corpus + a searchable/filterable
+  browser; tests isolated to a disposable DB.
 - A player+mechanics manual is in [`docs/manual/`](docs/manual/) (LaTeX source +
   built PDF); its worked example is generated from real pipeline output.
 
 ---
 
-## 7. Working agreements
+## 8. Working agreements
 
 - Match the surrounding code's style; keep `shared/` isomorphic (no Node-only or
   browser-only APIs there).

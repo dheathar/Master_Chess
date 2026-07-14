@@ -504,14 +504,18 @@ tomorrow. A stat block tracks cards \textbf{due}, your day \textbf{streak}, and
 
 \subsection{Library}
 
-Two tabs. \textbf{Classics} is a catalogue of famous master games you can load
-into your own account for full engine analysis (costs one quota unit). Because a
-historical game has no honest ``your side,'' a loaded classic is analysed for
-review but is \emph{not} folded into your player model --- studying Morphy
-teaches you about Morphy, not about you. \textbf{Opening explorer} is an
-interactive tree: at every position it shows what the master library played
-there against what \emph{you} have played there in your own analysed games ---
-a direct read on where your repertoire leaks.
+Two tabs. \textbf{Games} is a searchable catalogue of master games --- the
+golden-start library ships with roughly \textbf{6{,}000} games from Morphy,
+Capablanca, Fischer, Tal, and Kasparov, and grows via \code{npm run
+library:import}. You can \textbf{search} by player, opening, or event,
+\textbf{filter} by ECO code, result, and source, \textbf{sort}, and page through
+the results. Loading a game runs full engine analysis on it for review (one
+quota unit); because a historical game has no honest ``your side,'' a loaded
+classic is \emph{not} folded into your player model --- studying Morphy teaches
+you about Morphy, not about you. \textbf{Opening explorer} is an interactive
+tree: at every position it shows what the master library played there against
+what \emph{you} have played there in your own analysed games --- a direct read
+on where your repertoire leaks.
 
 \subsection{Account \& data}
 

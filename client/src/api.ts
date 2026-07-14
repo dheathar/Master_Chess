@@ -5,6 +5,8 @@ import type {
   GameDetailResponse,
   GameSummary,
   LibraryGameSummary,
+  LibraryGamesQuery,
+  LibraryGamesResponse,
   LoadLibraryGameResponse,
   DrillAttemptResult,
   DrillStats,
@@ -97,8 +99,15 @@ export async function getPlayerHistory(): Promise<PlayerHistoryResponse> {
   return request<PlayerHistoryResponse>("/player-model/history");
 }
 
-export async function listLibraryGames(): Promise<{ games: LibraryGameSummary[] }> {
-  return request<{ games: LibraryGameSummary[] }>("/library/games");
+export async function listLibraryGames(
+  query: Partial<LibraryGamesQuery> = {},
+): Promise<LibraryGamesResponse> {
+  const params = new URLSearchParams();
+  for (const [key, value] of Object.entries(query)) {
+    if (value !== undefined && value !== null && `${value}`.length > 0) params.set(key, `${value}`);
+  }
+  const qs = params.toString();
+  return request<LibraryGamesResponse>(`/library/games${qs ? `?${qs}` : ""}`);
 }
 
 export async function loadLibraryGame(id: string): Promise<LoadLibraryGameResponse> {

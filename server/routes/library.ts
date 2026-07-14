@@ -1,12 +1,13 @@
 import { Router } from "express";
-import { and, eq, gte, lt } from "drizzle-orm";
+import { and, asc, count, desc, eq, gte, like, lt, or, type SQL } from "drizzle-orm";
 import { db } from "../db/client";
 import { games, libraryGames, libraryPositions, moves } from "../db/schema";
 import { requireAuth } from "../auth/middleware";
 import { loadLibraryGameForUser } from "../library/loadIntoAccount";
 import { normalizeFenKey } from "../engine/evalCache";
 import { dailyLimitFor, quotaRemaining, tryConsumeQuota } from "../auth/usageQuota";
-import type { ExplorerMoveStat, ExplorerResponse, LibraryGameSummary, LoadLibraryGameResponse } from "@shared/api";
+import { libraryGamesQuerySchema } from "@shared/api";
+import type { ExplorerMoveStat, ExplorerResponse, LibraryGameSummary, LibraryGamesQuery, LibraryGamesResponse, LoadLibraryGameResponse } from "@shared/api";
 
 export const libraryRouter = Router();
 
@@ -27,9 +28,68 @@ function toSummary(row: typeof libraryGames.$inferSelect): LibraryGameSummary {
   };
 }
 
-libraryRouter.get("/games", requireAuth, (_req, res) => {
-  const rows = db.select().from(libraryGames).all();
-  res.json({ games: rows.map(toSummary) });
+const SORT_COLUMNS = {
+  date_desc: desc(libraryGames.playedAt),
+  date_asc: asc(libraryGames.playedAt),
+  white_asc: asc(libraryGames.white),
+  black_asc: asc(libraryGames.black),
+  plies_desc: desc(libraryGames.plyCount),
+  plies_asc: asc(libraryGames.plyCount),
+} as const;
+
+/**
+ * Library browser query: search across players/opening/event, filter by ECO
+ * prefix, result and source, sort, and paginate. Pure DB logic, exported so it
+ * can be unit-tested without an HTTP layer.
+ */
+export function queryLibraryGames(params: LibraryGamesQuery): LibraryGamesResponse {
+  const { search, eco, result, source, sort, page, pageSize } = params;
+
+  const filters: SQL[] = [];
+  if (search) {
+    const term = `%${search}%`;
+    // SQLite LIKE is case-insensitive for ASCII, which suits player/opening text.
+    filters.push(
+      or(
+        like(libraryGames.white, term),
+        like(libraryGames.black, term),
+        like(libraryGames.opening, term),
+        like(libraryGames.event, term),
+      )!,
+    );
+  }
+  if (eco) filters.push(like(libraryGames.eco, `${eco.toUpperCase()}%`));
+  if (result) filters.push(eq(libraryGames.result, result));
+  if (source) filters.push(eq(libraryGames.source, source));
+  const where = filters.length > 0 ? and(...filters) : undefined;
+
+  const totalRow = db.select({ value: count() }).from(libraryGames).where(where).get();
+  const total = totalRow?.value ?? 0;
+
+  const rows = db
+    .select()
+    .from(libraryGames)
+    .where(where)
+    // Secondary sort by id keeps pagination deterministic when the primary key ties.
+    .orderBy(SORT_COLUMNS[sort], asc(libraryGames.id))
+    .limit(pageSize)
+    .offset((page - 1) * pageSize)
+    .all();
+
+  return { games: rows.map(toSummary), total, page, pageSize };
+}
+
+/**
+ * Library browser endpoint. Parameters are optional and validated; unknown
+ * values fall back to defaults so a stray query string degrades gracefully.
+ */
+libraryRouter.get("/games", requireAuth, (req, res) => {
+  const parsed = libraryGamesQuerySchema.safeParse(req.query);
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.issues[0]?.message ?? "Invalid library query." });
+    return;
+  }
+  res.json(queryLibraryGames(parsed.data));
 });
 
 /**

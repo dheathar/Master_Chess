@@ -149,13 +149,27 @@ export function importLibraryPgn(raw: string, source: LibrarySource): LibraryImp
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-/** Seeds the library with the 5 validated classic games on first boot. */
+/**
+ * Seeds the library on first boot from every `.pgn` in the seed directory.
+ * `classics.pgn` holds the 5 hand-titled classics; `golden.pgn` is the curated
+ * golden-start corpus (Morphy, Capablanca, Fischer, Tal, Kasparov). Files are
+ * imported in sorted order so the hand-titled classics win the dedupe over any
+ * duplicate in the bulk corpus. Drop additional `.pgn` files here (or use
+ * `npm run library:import`) to grow the library.
+ */
 export function ensureLibrarySeeded(): void {
   const existing = db.select({ id: libraryGames.id }).from(libraryGames).limit(1).get();
   if (existing) return;
-  const seedPath = path.join(__dirname, "seed", "classics.pgn");
-  if (!fs.existsSync(seedPath)) return;
-  const raw = fs.readFileSync(seedPath, "utf8");
-  const result = importLibraryPgn(raw, "classic");
-  console.log(`[library] Seeded ${result.imported} classic games (${result.rejected.length} rejected).`);
+  const seedDir = path.join(__dirname, "seed");
+  if (!fs.existsSync(seedDir)) return;
+  const seedFiles = fs.readdirSync(seedDir).filter((f) => f.endsWith(".pgn")).sort();
+  let imported = 0;
+  let rejected = 0;
+  for (const file of seedFiles) {
+    const raw = fs.readFileSync(path.join(seedDir, file), "utf8");
+    const result = importLibraryPgn(raw, "classic");
+    imported += result.imported;
+    rejected += result.rejected.length;
+  }
+  console.log(`[library] Seeded ${imported} games from ${seedFiles.length} file(s) (${rejected} rejected).`);
 }

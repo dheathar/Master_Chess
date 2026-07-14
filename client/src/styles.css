@@ -2121,3 +2121,48 @@ textarea::placeholder {
   color: var(--text-fainter);
   font-style: italic;
 }
+
+/* ── Library browser: search / filter / pager ─────────────────────────── */
+.library-toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+.library-search {
+  width: 100%;
+  font-size: 15px;
+}
+.library-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+.library-filters select,
+.library-eco {
+  font-size: 13px;
+  padding: 6px 8px;
+}
+.library-eco {
+  width: 72px;
+  text-transform: uppercase;
+}
+.library-result-count {
+  margin: 0 0 12px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-faint);
+}
+.game-row-elo {
+  color: var(--text-faint);
+  font-size: 12px;
+}
+.library-pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 20px;
+}

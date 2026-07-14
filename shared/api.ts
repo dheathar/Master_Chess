@@ -224,6 +224,7 @@ export type EvidenceReceipt = z.infer<typeof evidenceReceiptSchema>;
 // ── Master-game library ──────────────────────────────────────────────────
 
 export const librarySourceSchema = z.enum(["classic", "twic", "lichess", "upload"]);
+export type LibrarySource = z.infer<typeof librarySourceSchema>;
 
 export const libraryGameSummarySchema = z.object({
   id: z.string(),
@@ -240,6 +241,36 @@ export const libraryGameSummarySchema = z.object({
   source: librarySourceSchema,
 });
 export type LibraryGameSummary = z.infer<typeof libraryGameSummarySchema>;
+
+export const librarySortSchema = z.enum([
+  "date_desc",
+  "date_asc",
+  "white_asc",
+  "black_asc",
+  "plies_desc",
+  "plies_asc",
+]);
+export type LibrarySort = z.infer<typeof librarySortSchema>;
+
+/** Query for the library browser — all optional; drives search/filter/sort/paging. */
+export const libraryGamesQuerySchema = z.object({
+  search: z.string().trim().max(120).optional(),
+  eco: z.string().trim().max(3).optional(),
+  result: z.string().trim().max(7).optional(),
+  source: librarySourceSchema.optional(),
+  sort: librarySortSchema.default("date_desc"),
+  page: z.coerce.number().int().min(1).default(1),
+  pageSize: z.coerce.number().int().min(1).max(100).default(24),
+});
+export type LibraryGamesQuery = z.infer<typeof libraryGamesQuerySchema>;
+
+export const libraryGamesResponseSchema = z.object({
+  games: z.array(libraryGameSummarySchema),
+  total: z.number().int(),
+  page: z.number().int(),
+  pageSize: z.number().int(),
+});
+export type LibraryGamesResponse = z.infer<typeof libraryGamesResponseSchema>;
 
 export const loadLibraryGameResponseSchema = z.object({
   gameId: z.string(),
