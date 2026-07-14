@@ -11,6 +11,7 @@ import type {
   LibraryGamesQuery,
   LibraryGamesResponse,
   LoadLibraryGameResponse,
+  PlayMoveResponse,
   DrillAttemptResult,
   DrillHintResponse,
   DrillStats,
@@ -134,6 +135,13 @@ export async function helpChat(
 
 export async function getJourney(): Promise<JourneyResponse> {
   return request<JourneyResponse>("/journey");
+}
+
+export async function requestEngineMove(fen: string, difficulty: number): Promise<PlayMoveResponse> {
+  return request<PlayMoveResponse>("/play/move", {
+    method: "POST",
+    body: JSON.stringify({ fen, difficulty }),
+  });
 }
 
 export async function getDueDrills(): Promise<{ drills: DueDrill[] }> {

@@ -2443,3 +2443,49 @@ textarea::placeholder {
   text-transform: uppercase;
 }
 .drill-hint-btn:disabled { opacity: 0.6; }
+
+/* ── Play vs AI ────────────────────────────────────────────────────────── */
+.play-choice {
+  flex: 1;
+  padding: 14px;
+  border: 2.5px solid var(--border);
+  background: #fff;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  box-shadow: 3px 3px 0 var(--border);
+}
+.play-choice.active { background: var(--yellow); }
+.play-level {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 10px 14px;
+  border: 2.5px solid var(--border-dashed);
+  background: #fff;
+  text-align: left;
+}
+.play-level.active { border-color: var(--border); background: var(--yellow); box-shadow: 3px 3px 0 var(--border); }
+.play-level-name { font-family: var(--font-mono); font-weight: 700; text-transform: uppercase; font-size: 13px; }
+.play-level-blurb { font-size: 12px; color: var(--text-muted); }
+
+/* Interactive board (Play): selection + legal-target markers */
+.board-square.interactive { cursor: pointer; }
+.board-square.sel { background: var(--yellow) !important; }
+.board-target {
+  position: absolute;
+  width: 30%;
+  height: 30%;
+  border-radius: 50%;
+  background: rgba(18, 146, 74, 0.55);
+  pointer-events: none;
+}
+.board-target.capture {
+  width: 82%;
+  height: 82%;
+  border-radius: 50%;
+  background: transparent;
+  border: 4px solid rgba(18, 146, 74, 0.55);
+}

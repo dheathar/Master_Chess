@@ -445,3 +445,20 @@ export const journeyResponseSchema = z.object({
   llmAvailable: z.boolean(),
 });
 export type JourneyResponse = z.infer<typeof journeyResponseSchema>;
+
+// ── Play vs AI (Stockfish opponent) ──────────────────────────────────────
+
+/** 1 = beginner (shallow, samples weaker moves) … 5 = max (always best). */
+export const playDifficultySchema = z.number().int().min(1).max(5);
+
+export const playMoveRequestSchema = z.object({
+  fen: z.string().min(10).max(120),
+  difficulty: playDifficultySchema,
+});
+export type PlayMoveRequest = z.infer<typeof playMoveRequestSchema>;
+
+export const playMoveResponseSchema = z.object({
+  uci: z.string(),
+  san: z.string(),
+});
+export type PlayMoveResponse = z.infer<typeof playMoveResponseSchema>;

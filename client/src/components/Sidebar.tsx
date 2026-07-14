@@ -1,9 +1,13 @@
 import { useAuthStore } from "../store/useAuthStore";
 
-export type SidebarView = "dashboard" | "library" | "model" | "progress" | "prescription" | "drill";
+export type SidebarView = "dashboard" | "library" | "model" | "progress" | "prescription" | "drill" | "play";
 
-// Grouped so the nav itself teaches the loop: your material → diagnosis → training.
+// Grouped so the nav itself teaches the loop: play/import → diagnosis → training.
 const NAV_GROUPS: Array<{ title: string; items: Array<{ key: SidebarView; label: string; icon: string }> }> = [
+  {
+    title: "Play",
+    items: [{ key: "play", label: "Play vs AI", icon: "⚔" }],
+  },
   {
     title: "Your games",
     items: [
