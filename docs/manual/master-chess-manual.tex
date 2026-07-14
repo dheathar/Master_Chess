@@ -565,6 +565,16 @@ correctly and the card is scheduled further out; answer wrongly and it returns
 tomorrow. A stat block tracks cards \textbf{due}, your day \textbf{streak}, and
 \textbf{retention}. The scheduler is SM-2 spaced repetition (\S\ref{sec:mechanics}).
 
+\textbf{Stuck? Ask the Coach.} A \textbf{Coach} panel offers up to three
+\emph{graded, Socratic} hints: first a nudge to look at forcing moves, then the
+\emph{kind} of move (a capture, a check, a quiet improvement), and only last the
+move itself. Crucially, these hints are \emph{engine-grounded, not AI guesswork}
+--- each is derived directly from the engine's own best move, so a hint can
+never be wrong. Taking a hint is honest about what it means: a hinted-correct
+counts as \textbf{partial credit}, so the card comes back sooner than one you
+solved unaided (\S\ref{sec:mechanics}). Hints and help chats are recorded so
+your effort is transparent.
+
 \subsection{Library}
 
 Two tabs. \textbf{Games} is a searchable catalogue of master games --- the
@@ -835,6 +845,9 @@ interval is $\text{interval}\times\text{ease}$, capped at \textbf{21 days}.
 lapse is recorded. After \textbf{4 lapses} a card is suspended as a ``leech''
 and stops being scheduled. A card only counts toward your streak and retention
 when it was genuinely due --- you cannot grind the same card for credit.
+\textbf{Hinted-correct} (you used the Coach) is partial credit: no ease reward,
+no streak, and only a gentle interval bump, so the card returns sooner than an
+unaided solve.
 \end{rulebox}
 
 An answer is also accepted if it is any engine move within about 25cp of the

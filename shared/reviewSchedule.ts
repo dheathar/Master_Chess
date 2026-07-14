@@ -14,6 +14,7 @@ const baseMinutes = 5; // relearning step after a lapse / for a brand-new card
 const graduatingBaseDays = 1; // seed interval a card grows from once answered correctly
 const maxIntervalDays = 21; // cap at 3 weeks
 const LEECH_LAPSES = 4; // suspend a card that has lapsed this many times
+const HINT_GROWTH = 1.3; // gentle interval growth for a hinted-correct (partial credit)
 
 export type ReviewOutcome = "correct" | "incorrect";
 
@@ -40,6 +41,7 @@ export function nextReviewState(
   outcome: ReviewOutcome,
   currentMastery: number | undefined,
   now: number = Date.now(),
+  hinted: boolean = false,
 ): ReviewState {
   if (outcome === "incorrect") {
     // Decay the ease (floored), reset the streak, and relearn soon. Suspend as
@@ -56,12 +58,29 @@ export function nextReviewState(
     };
   }
 
-  // Correct: nudge ease up (weighted by how well the underlying skill is known)
-  // and grow the interval multiplicatively so it strictly increases.
+  const base = current.intervalDays > 0 ? current.intervalDays : graduatingBaseDays;
+
+  // Hinted-correct = partial credit: a solve you needed help for isn't proof of
+  // independent recall. Don't reward the ease, don't count it toward the streak,
+  // and grow the interval only gently, so the card returns sooner than a clean
+  // solve would schedule it.
+  if (hinted) {
+    const intervalDays = Math.min(maxIntervalDays, base * HINT_GROWTH);
+    return {
+      dueAt: now + intervalDays * 24 * 60 * 60 * 1000,
+      intervalDays,
+      ease: current.ease,
+      streak: current.streak,
+      lapses: current.lapses,
+      suspended: false,
+    };
+  }
+
+  // Unaided correct: nudge ease up (weighted by how well the underlying skill is
+  // known) and grow the interval multiplicatively so it strictly increases.
   const pKnow = pKnowFromMastery(currentMastery);
   const ease = clampEase(current.ease + 0.05 + pKnow * 0.1);
   const streak = current.streak + 1;
-  const base = current.intervalDays > 0 ? current.intervalDays : graduatingBaseDays;
   const intervalDays = Math.min(maxIntervalDays, base * ease);
   return {
     dueAt: now + intervalDays * 24 * 60 * 60 * 1000,

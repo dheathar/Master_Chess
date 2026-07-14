@@ -1,7 +1,10 @@
+import crypto from "node:crypto";
 import { Router } from "express";
 import { requireAuth } from "../auth/middleware";
 import { rateLimit } from "../auth/rateLimit";
 import { asyncHandler } from "../asyncHandler";
+import { db } from "../db/client";
+import { coachEvents } from "../db/schema";
 import { getLlmProvider } from "../llm";
 import { HELP_KNOWLEDGE } from "@shared/helpKnowledge";
 import { helpChatRequestSchema, type HelpChatMessage, type HelpChatResponse } from "@shared/api";
@@ -76,19 +79,34 @@ helpRouter.post(
       `The user's display name is ${user.displayName}. Their subscription tier is "${user.tier}" ` +
       `(free = 5 analyses/day; pro and academy = unlimited).`;
 
+    const question = parsed.data.messages[parsed.data.messages.length - 1].content;
+
+    let answer = FALLBACK_ANSWER;
+    let llmAvailable = false;
     const provider = getLlmProvider();
-    if (!provider || !(await provider.isAvailable())) {
-      res.json({ answer: FALLBACK_ANSWER, llmAvailable: false } satisfies HelpChatResponse);
-      return;
+    if (provider && (await provider.isAvailable())) {
+      const { system, prompt } = buildHelpPrompt(parsed.data.messages, parsed.data.screen, userContext);
+      try {
+        const completion = await provider.complete({ system, prompt });
+        const text = completion.text.trim();
+        if (text) {
+          answer = text;
+          llmAvailable = true;
+        }
+      } catch {
+        /* keep the deterministic fallback */
+      }
     }
 
-    const { system, prompt } = buildHelpPrompt(parsed.data.messages, parsed.data.screen, userContext);
-    try {
-      const completion = await provider.complete({ system, prompt });
-      const answer = completion.text.trim();
-      res.json({ answer: answer || FALLBACK_ANSWER, llmAvailable: answer.length > 0 } satisfies HelpChatResponse);
-    } catch {
-      res.json({ answer: FALLBACK_ANSWER, llmAvailable: false } satisfies HelpChatResponse);
-    }
+    // Persist the exchange (transparency + so help usage can inform coaching).
+    const now = Date.now();
+    db.insert(coachEvents)
+      .values([
+        { id: crypto.randomUUID(), userId: user.id, kind: "chat", drillId: null, screen: parsed.data.screen ?? null, role: "user", content: question, createdAt: now },
+        { id: crypto.randomUUID(), userId: user.id, kind: "chat", drillId: null, screen: parsed.data.screen ?? null, role: "assistant", content: answer, createdAt: now + 1 },
+      ])
+      .run();
+
+    res.json({ answer, llmAvailable } satisfies HelpChatResponse);
   }),
 );

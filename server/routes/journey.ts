@@ -1,7 +1,8 @@
+import crypto from "node:crypto";
 import { Router } from "express";
 import { and, eq, lte } from "drizzle-orm";
 import { db } from "../db/client";
-import { skillScores, games, analyses, reviewQueue, drillAttempts } from "../db/schema";
+import { skillScores, games, analyses, reviewQueue, drillAttempts, journeyCache } from "../db/schema";
 import { requireAuth } from "../auth/middleware";
 import { asyncHandler } from "../asyncHandler";
 import { getLlmProvider } from "../llm";
@@ -118,6 +119,47 @@ journeyRouter.get(
     const nextAction = decideNextAction(facts);
     const achievements = buildAchievements(facts);
 
+    // Signature of every input that could change the narrative or next action.
+    // If it hasn't changed since we last narrated, reuse the cached prose and
+    // skip the LLM call entirely (the stats/achievements/nextAction above are
+    // cheap and recomputed fresh regardless).
+    const signature = crypto
+      .createHash("sha256")
+      .update(
+        JSON.stringify({
+          g: facts.gamesAnalyzed,
+          d: facts.dueDrills,
+          dc: facts.drillsCompleted,
+          r: facts.retentionPct,
+          lvl: facts.level,
+          pl: facts.plateauName,
+          ev: facts.evidenced.map((s) => [s.skillId, s.mastery, s.sampleCount]).sort(),
+        }),
+      )
+      .digest("hex");
+
+    const cached = db.select().from(journeyCache).where(eq(journeyCache.userId, userId)).get();
+    if (cached && cached.signature === signature) {
+      const response: JourneyResponse = {
+        stats: {
+          gamesAnalyzed: facts.gamesAnalyzed,
+          evidencedSkillCount: facts.evidenced.length,
+          level: facts.level,
+          levelName: facts.levelName,
+          plateauName: facts.plateauName,
+          dueDrills: facts.dueDrills,
+          drillsCompleted: facts.drillsCompleted,
+          retentionPct: facts.retentionPct,
+        },
+        achievements,
+        nextAction,
+        narrative: cached.narrative,
+        llmAvailable: cached.llmAvailable,
+      };
+      res.json(response);
+      return;
+    }
+
     // Grounded narration: hand the LLM only the facts; fall back to deterministic prose.
     let narrative = deterministicNarrative(facts, nextAction);
     let llmAvailable = false;
@@ -149,6 +191,13 @@ journeyRouter.get(
         /* keep deterministic narrative */
       }
     }
+
+    // Cache this narrative against its input signature (upsert).
+    const savedAt = Date.now();
+    db.insert(journeyCache)
+      .values({ userId, signature, narrative, llmAvailable, updatedAt: savedAt })
+      .onConflictDoUpdate({ target: journeyCache.userId, set: { signature, narrative, llmAvailable, updatedAt: savedAt } })
+      .run();
 
     const response: JourneyResponse = {
       stats: {

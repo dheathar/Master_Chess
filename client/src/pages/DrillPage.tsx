@@ -43,6 +43,9 @@ export function DrillPage() {
   const [chosenUci, setChosenUci] = useState<string | null>(null);
   const [shownAt, setShownAt] = useState(0);
   const [submitting, setSubmitting] = useState(false);
+  const [hints, setHints] = useState<string[]>([]);
+  const [hinted, setHinted] = useState(false);
+  const [hintBusy, setHintBusy] = useState(false);
 
   useEffect(() => {
     api
@@ -64,7 +67,7 @@ export function DrillPage() {
     setChosenUci(choice.uci);
     setSubmitting(true);
     try {
-      const response = await api.submitDrillAttempt(current.id, choice.uci, Date.now() - shownAt);
+      const response = await api.submitDrillAttempt(current.id, choice.uci, Date.now() - shownAt, hinted);
       setResult(response);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to submit attempt.");
@@ -73,9 +76,27 @@ export function DrillPage() {
     }
   }
 
+  async function onHint() {
+    if (!current || hintBusy || result) return;
+    const level = hints.length + 1;
+    if (level > 3) return;
+    setHintBusy(true);
+    try {
+      const r = await api.getDrillHint(current.id, level);
+      setHints((h) => [...h, r.hint]);
+      setHinted(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to fetch a hint.");
+    } finally {
+      setHintBusy(false);
+    }
+  }
+
   function onNext() {
     setResult(null);
     setChosenUci(null);
+    setHints([]);
+    setHinted(false);
     setIndex((i) => i + 1);
     setShownAt(Date.now());
     api.getDrillStats().then(setStats).catch(() => {});
@@ -184,6 +205,28 @@ export function DrillPage() {
                   })}
                 </div>
               </div>
+
+              {/* Coach: graded Socratic hints (engine-grounded). Using one marks the drill hinted → partial credit. */}
+              {!result ? (
+                <div className="drill-coach">
+                  <div className="drill-coach-head">
+                    <span className="drill-coach-title">🧭 Coach</span>
+                    {hinted ? <span className="drill-coach-note">hinted → partial credit</span> : null}
+                  </div>
+                  {hints.map((h, i) => (
+                    <p key={i} className="drill-hint">
+                      <span className="drill-hint-level">Hint {i + 1}</span> {h}
+                    </p>
+                  ))}
+                  {hints.length < 3 ? (
+                    <button type="button" className="drill-hint-btn" onClick={() => void onHint()} disabled={hintBusy || submitting}>
+                      {hintBusy ? "Thinking…" : hints.length === 0 ? "💡 Need a hint?" : "Show another hint"}
+                    </button>
+                  ) : (
+                    <p className="drill-coach-note" style={{ margin: "4px 0 0" }}>That's the last hint — make your move.</p>
+                  )}
+                </div>
+              ) : null}
 
               {result ? (
                 <div className="card" style={{ borderColor: result.correct ? "var(--best)" : "var(--blunder)" }}>

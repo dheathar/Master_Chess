@@ -43,6 +43,13 @@
       "when": 1783585789336,
       "tag": "0005_freezing_psynapse",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1784027396986,
+      "tag": "0006_odd_argent",
+      "breakpoints": true
     }
   ]
 }

@@ -3,12 +3,12 @@ import { Router } from "express";
 import { Chess } from "chess.js";
 import { and, eq, lte } from "drizzle-orm";
 import { db } from "../db/client";
-import { drills, reviewQueue, drillAttempts, skillScores, moves } from "../db/schema";
+import { drills, reviewQueue, drillAttempts, skillScores, moves, coachEvents } from "../db/schema";
 import { requireAuth } from "../auth/middleware";
 import { nextReviewState } from "@shared/reviewSchedule";
 import { SKILL_BY_ID, type SkillId } from "@shared/taxonomy";
-import { submitDrillAttemptRequestSchema } from "@shared/api";
-import type { DueDrill, DrillStats, DrillAttemptResult } from "@shared/api";
+import { submitDrillAttemptRequestSchema, drillHintRequestSchema } from "@shared/api";
+import type { DueDrill, DrillStats, DrillAttemptResult, DrillHintResponse } from "@shared/api";
 
 export const drillsRouter = Router();
 
@@ -175,7 +175,8 @@ drillsRouter.post("/:id/attempt", requireAuth, (req, res) => {
     lapses: queueRow.lapses,
     suspended: queueRow.suspended,
   };
-  const next = nextReviewState(currentState, correct ? "correct" : "incorrect", currentMastery);
+  const hinted = parsed.data.hinted;
+  const next = nextReviewState(currentState, correct ? "correct" : "incorrect", currentMastery, Date.now(), hinted);
 
   // Only a genuinely-due review updates the schedule and counts toward
   // retention/streak — otherwise the same drill could be re-submitted to grind
@@ -203,6 +204,7 @@ drillsRouter.post("/:id/attempt", requireAuth, (req, res) => {
         correct,
         msTaken: parsed.data.msTaken,
         evalPredictionCp: null,
+        hinted,
         createdAt: Date.now(),
       })
       .run();
@@ -216,4 +218,89 @@ drillsRouter.post("/:id/attempt", requireAuth, (req, res) => {
     streak: wasDue ? next.streak : queueRow.streak,
   };
   res.json(result);
+});
+
+// ── Socratic, engine-grounded drill hints ────────────────────────────────
+
+const PIECE_NAMES: Record<string, string> = {
+  p: "pawn", n: "knight", b: "bishop", r: "rook", q: "queen", k: "king",
+};
+
+/**
+ * Builds three graded hints for a drill, derived ENTIRELY from the engine's
+ * best move applied to the real position (chess.js) — never from model
+ * guesswork, so a hint can't be wrong. Level 1 is a pure Socratic nudge with no
+ * specifics; level 2 names the piece and the idea (capture / check / quiet);
+ * level 3 reveals the move. Exported for testing.
+ */
+export function buildDrillHints(fen: string, correctUci: string): string[] {
+  const generic1 =
+    "Before you move, check every forcing option — checks, captures, and threats. " +
+    "Which of your pieces can do the most work right now?";
+  try {
+    const chess = new Chess(fen);
+    const move = chess.move({
+      from: correctUci.slice(0, 2),
+      to: correctUci.slice(2, 4),
+      promotion: correctUci[4] as "q" | "r" | "b" | "n" | undefined,
+    });
+    if (!move) return [generic1, generic1, generic1];
+    const piece = PIECE_NAMES[move.piece] ?? "piece";
+    const isCapture = move.flags.includes("c") || move.flags.includes("e");
+    const isCheck = move.san.includes("+") || move.san.includes("#");
+    const isCastle = move.flags.includes("k") || move.flags.includes("q");
+
+    let level2: string;
+    if (isCastle) {
+      level2 = "The key move isn't about a single piece — your king's safety is the priority here. What does castling do for you?";
+    } else if (isCheck) {
+      level2 = `A ${piece} move here gives check and seizes the initiative. Which forcing line does that open up?`;
+    } else if (isCapture) {
+      const captured = move.captured ? PIECE_NAMES[move.captured] ?? "a piece" : "material";
+      level2 = `Look for a ${piece} move that wins material — there's ${captured === "material" ? "material" : `a ${captured}`} to take. Do you see it?`;
+    } else {
+      level2 = `The idea is a quiet ${piece} move that improves your position, not a capture. Where does your ${piece} most want to go?`;
+    }
+    const level3 = `The move is ${move.san} — your ${piece} from ${move.from} to ${move.to}.`;
+    return [generic1, level2, level3];
+  } catch {
+    return [generic1, generic1, generic1];
+  }
+}
+
+const MAX_HINT_LEVEL = 3;
+
+drillsRouter.post("/:id/hint", requireAuth, (req, res) => {
+  const userId = req.user!.id;
+  const parsed = drillHintRequestSchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.issues[0]?.message ?? "Invalid request." });
+    return;
+  }
+  const drillRow = db.select().from(drills).where(and(eq(drills.id, req.params.id), eq(drills.userId, userId))).get();
+  if (!drillRow) {
+    res.status(404).json({ error: "Drill not found." });
+    return;
+  }
+
+  const hints = buildDrillHints(drillRow.fen, drillRow.correctUci);
+  const level = Math.min(parsed.data.level, MAX_HINT_LEVEL);
+  const hint = hints[level - 1] ?? hints[0];
+
+  // Log the hint so it's transparent and can inform the assessment.
+  db.insert(coachEvents)
+    .values({
+      id: crypto.randomUUID(),
+      userId,
+      kind: "hint",
+      drillId: drillRow.id,
+      screen: "drill",
+      role: null,
+      content: `L${level}: ${hint}`,
+      createdAt: Date.now(),
+    })
+    .run();
+
+  const response: DrillHintResponse = { level, maxLevel: MAX_HINT_LEVEL, hint, final: level >= MAX_HINT_LEVEL };
+  res.json(response);
 });

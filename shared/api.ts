@@ -325,8 +325,25 @@ export type DrillStats = z.infer<typeof drillStatsSchema>;
 export const submitDrillAttemptRequestSchema = z.object({
   answeredUci: z.string().min(4).max(5),
   msTaken: z.number().int().min(0).nullable(),
+  /** True when the solver took at least one hint before answering (partial credit). */
+  hinted: z.boolean().default(false),
 });
 export type SubmitDrillAttemptRequest = z.infer<typeof submitDrillAttemptRequestSchema>;
+
+export const drillHintRequestSchema = z.object({
+  /** 1 = gentle Socratic nudge, 2 = concept, 3 = near-reveal. */
+  level: z.number().int().min(1).max(3),
+});
+export type DrillHintRequest = z.infer<typeof drillHintRequestSchema>;
+
+export const drillHintResponseSchema = z.object({
+  level: z.number().int(),
+  maxLevel: z.number().int(),
+  hint: z.string(),
+  /** True once the deepest level has been shown (client can stop offering "more"). */
+  final: z.boolean(),
+});
+export type DrillHintResponse = z.infer<typeof drillHintResponseSchema>;
 
 export const drillAttemptResultSchema = z.object({
   correct: z.boolean(),

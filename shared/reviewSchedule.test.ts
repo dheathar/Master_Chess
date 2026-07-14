@@ -43,6 +43,19 @@ describe("nextReviewState", () => {
     }
     expect(state.intervalDays).toBeLessThanOrEqual(21);
   });
+
+  it("gives a hinted-correct only partial credit vs an unaided correct", () => {
+    const start = initialReviewState(now);
+    const unaided = nextReviewState(start, "correct", 90, now, false);
+    const hinted = nextReviewState(start, "correct", 90, now, true);
+    // Both grow the interval (both beat a lapse), but the hinted one returns sooner.
+    expect(hinted.intervalDays).toBeGreaterThan(0);
+    expect(hinted.intervalDays).toBeLessThan(unaided.intervalDays);
+    // A hint must not reward the ease factor or advance the streak.
+    expect(hinted.ease).toBe(start.ease);
+    expect(hinted.streak).toBe(start.streak);
+    expect(unaided.streak).toBe(start.streak + 1);
+  });
 });
 
 describe("isDue", () => {

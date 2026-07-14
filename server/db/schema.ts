@@ -316,7 +316,46 @@ export const drillAttempts = sqliteTable("drill_attempts", {
   correct: integer("correct", { mode: "boolean" }).notNull(),
   msTaken: integer("ms_taken"),
   evalPredictionCp: integer("eval_prediction_cp"),
+  /** True when the solver took a hint before answering — a hinted-correct is weaker evidence (partial credit). */
+  hinted: integer("hinted", { mode: "boolean" }).notNull().default(false),
   createdAt: integer("created_at").notNull(),
+});
+
+/**
+ * Every coaching interaction: help-chat turns and drill hints. Logged for
+ * transparency and so hint use can be reflected in the player's assessment.
+ */
+export const coachEvents = sqliteTable(
+  "coach_events",
+  {
+    id: text("id").primaryKey(),
+    userId: text("user_id").notNull().references(() => users.id),
+    kind: text("kind", { enum: ["chat", "hint"] }).notNull(),
+    /** Set when the interaction was about a specific drill. */
+    drillId: text("drill_id"),
+    /** Screen the user was on, free-form. */
+    screen: text("screen"),
+    /** "user" | "assistant" for chat turns; null for a hint event. */
+    role: text("role"),
+    content: text("content").notNull(),
+    createdAt: integer("created_at").notNull(),
+  },
+  (table) => ({
+    userIdx: index("coach_events_user_idx").on(table.userId),
+  }),
+);
+
+/**
+ * Cache of the Progress-page coach summary so it (and its LLM call) is only
+ * recomputed when the underlying stats actually change. `signature` is a hash
+ * of the inputs; a match means the cached narrative is still valid.
+ */
+export const journeyCache = sqliteTable("journey_cache", {
+  userId: text("user_id").primaryKey().references(() => users.id),
+  signature: text("signature").notNull(),
+  narrative: text("narrative").notNull(),
+  llmAvailable: integer("llm_available", { mode: "boolean" }).notNull().default(false),
+  updatedAt: integer("updated_at").notNull(),
 });
 
 // ── Dossier / programs (M5) ──────────────────────────────────────────────

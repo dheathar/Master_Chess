@@ -12,6 +12,7 @@ import type {
   LibraryGamesResponse,
   LoadLibraryGameResponse,
   DrillAttemptResult,
+  DrillHintResponse,
   DrillStats,
   DueDrill,
   LoginRequest,
@@ -144,10 +145,22 @@ export async function getDrillStats(): Promise<DrillStats> {
   return request<DrillStats>(`/drills/stats?tzOffset=${new Date().getTimezoneOffset()}`);
 }
 
-export async function submitDrillAttempt(drillId: string, answeredUci: string, msTaken: number | null): Promise<DrillAttemptResult> {
+export async function submitDrillAttempt(
+  drillId: string,
+  answeredUci: string,
+  msTaken: number | null,
+  hinted = false,
+): Promise<DrillAttemptResult> {
   return request<DrillAttemptResult>(`/drills/${drillId}/attempt`, {
     method: "POST",
-    body: JSON.stringify({ answeredUci, msTaken }),
+    body: JSON.stringify({ answeredUci, msTaken, hinted }),
+  });
+}
+
+export async function getDrillHint(drillId: string, level: number): Promise<DrillHintResponse> {
+  return request<DrillHintResponse>(`/drills/${drillId}/hint`, {
+    method: "POST",
+    body: JSON.stringify({ level }),
   });
 }
 
