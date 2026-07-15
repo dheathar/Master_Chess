@@ -15,9 +15,11 @@ export const helpRouter = Router();
 const helpLimiter = rateLimit({ windowMs: 5 * 60 * 1000, max: 40 });
 
 const SCREEN_LABELS: Record<string, string> = {
+  play: "Play vs AI",
   dashboard: "Games (dashboard)",
   upload: "Upload",
   review: "Game Review",
+  progress: "Progress",
   model: "Player Model",
   prescription: "Training Plan",
   drill: "Drills",

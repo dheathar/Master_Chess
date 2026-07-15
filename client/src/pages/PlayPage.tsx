@@ -35,12 +35,39 @@ export function PlayPage({ onOpenGame }: { onOpenGame: (gameId: string) => void 
   const [over, setOver] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [hints, setHints] = useState<string[]>([]); // full graded set once fetched
+  const [hintShown, setHintShown] = useState(0); // how many levels revealed
+  const [hintBusy, setHintBusy] = useState(false);
 
   const game = gameRef.current;
   const myTurn = !over && !thinking && game.turn() === playerColor[0];
 
   function refresh() {
     setFen(game.fen());
+  }
+
+  function clearHints() {
+    setHints([]);
+    setHintShown(0);
+  }
+
+  async function onHint() {
+    if (hintBusy || over) return;
+    // Already fetched → just reveal the next level.
+    if (hints.length > 0) {
+      setHintShown((n) => Math.min(hints.length, n + 1));
+      return;
+    }
+    setHintBusy(true);
+    try {
+      const r = await api.getPlayHint(game.fen());
+      setHints(r.hints);
+      setHintShown(1);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Could not fetch a hint.");
+    } finally {
+      setHintBusy(false);
+    }
   }
 
   function computeStatus() {
@@ -82,6 +109,7 @@ export function PlayPage({ onOpenGame }: { onOpenGame: (gameId: string) => void 
     setLastMove({ from: mv.from, to: mv.to });
     setSelected(null);
     setLegalForSel([]);
+    clearHints();
     refresh();
     if (game.isGameOver()) {
       finish();
@@ -118,6 +146,7 @@ export function PlayPage({ onOpenGame }: { onOpenGame: (gameId: string) => void 
     setSelected(null);
     setLegalForSel([]);
     setLastMove(null);
+    clearHints();
     setFen(fresh.fen());
     setStatus(playerColor === "white" ? "Your move." : "Engine to move…");
     if (playerColor === "black") void engineReply();
@@ -228,23 +257,46 @@ export function PlayPage({ onOpenGame }: { onOpenGame: (gameId: string) => void 
 
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             {!over ? (
-              <div className="card">
-                <div className="card-eyebrow" style={{ marginBottom: 8 }}>You are {playerColor}</div>
-                <p className="muted" style={{ margin: 0, fontSize: 13.5 }}>
-                  Click one of your pieces, then a highlighted square to move. The engine replies at the level you chose.
-                </p>
-                <button
-                  type="button"
-                  className="btn-ghost"
-                  style={{ marginTop: 14 }}
-                  onClick={() => {
-                    game.header("Result", playerColor === "white" ? "0-1" : "1-0");
-                    void finish();
-                  }}
-                >
-                  Resign
-                </button>
-              </div>
+              <>
+                <div className="card">
+                  <div className="card-eyebrow" style={{ marginBottom: 8 }}>You are {playerColor}</div>
+                  <p className="muted" style={{ margin: 0, fontSize: 13.5 }}>
+                    Click one of your pieces, then a highlighted square to move. The engine replies at the level you chose.
+                  </p>
+                  <button
+                    type="button"
+                    className="btn-ghost"
+                    style={{ marginTop: 14 }}
+                    onClick={() => {
+                      game.header("Result", playerColor === "white" ? "0-1" : "1-0");
+                      void finish();
+                    }}
+                  >
+                    Resign
+                  </button>
+                </div>
+
+                {/* In-match Coach: graded, engine-grounded hints for the current position. */}
+                {myTurn ? (
+                  <div className="drill-coach">
+                    <div className="drill-coach-head">
+                      <span className="drill-coach-title">🧭 Coach</span>
+                    </div>
+                    {hints.slice(0, hintShown).map((h, i) => (
+                      <p key={i} className="drill-hint">
+                        <span className="drill-hint-level">Hint {i + 1}</span> {h}
+                      </p>
+                    ))}
+                    {hintShown < 3 ? (
+                      <button type="button" className="drill-hint-btn" onClick={() => void onHint()} disabled={hintBusy}>
+                        {hintBusy ? "Thinking…" : hintShown === 0 ? "💡 Need a hint?" : "Show another hint"}
+                      </button>
+                    ) : (
+                      <p className="drill-coach-note" style={{ margin: "4px 0 0" }}>That's the last hint — your move.</p>
+                    )}
+                  </div>
+                ) : null}
+              </>
             ) : (
               <div className="card" style={{ borderColor: "var(--gold)" }}>
                 <p style={{ margin: "0 0 8px", fontWeight: 700, fontSize: 15 }}>{status}</p>

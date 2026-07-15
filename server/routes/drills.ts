@@ -6,6 +6,7 @@ import { db } from "../db/client";
 import { drills, reviewQueue, drillAttempts, skillScores, moves, coachEvents } from "../db/schema";
 import { requireAuth } from "../auth/middleware";
 import { nextReviewState } from "@shared/reviewSchedule";
+import { buildMoveHints, MAX_HINT_LEVEL } from "../pipeline/moveHints";
 import { SKILL_BY_ID, type SkillId } from "@shared/taxonomy";
 import { submitDrillAttemptRequestSchema, drillHintRequestSchema } from "@shared/api";
 import type { DueDrill, DrillStats, DrillAttemptResult, DrillHintResponse } from "@shared/api";
@@ -220,55 +221,7 @@ drillsRouter.post("/:id/attempt", requireAuth, (req, res) => {
   res.json(result);
 });
 
-// ── Socratic, engine-grounded drill hints ────────────────────────────────
-
-const PIECE_NAMES: Record<string, string> = {
-  p: "pawn", n: "knight", b: "bishop", r: "rook", q: "queen", k: "king",
-};
-
-/**
- * Builds three graded hints for a drill, derived ENTIRELY from the engine's
- * best move applied to the real position (chess.js) — never from model
- * guesswork, so a hint can't be wrong. Level 1 is a pure Socratic nudge with no
- * specifics; level 2 names the piece and the idea (capture / check / quiet);
- * level 3 reveals the move. Exported for testing.
- */
-export function buildDrillHints(fen: string, correctUci: string): string[] {
-  const generic1 =
-    "Before you move, check every forcing option — checks, captures, and threats. " +
-    "Which of your pieces can do the most work right now?";
-  try {
-    const chess = new Chess(fen);
-    const move = chess.move({
-      from: correctUci.slice(0, 2),
-      to: correctUci.slice(2, 4),
-      promotion: correctUci[4] as "q" | "r" | "b" | "n" | undefined,
-    });
-    if (!move) return [generic1, generic1, generic1];
-    const piece = PIECE_NAMES[move.piece] ?? "piece";
-    const isCapture = move.flags.includes("c") || move.flags.includes("e");
-    const isCheck = move.san.includes("+") || move.san.includes("#");
-    const isCastle = move.flags.includes("k") || move.flags.includes("q");
-
-    let level2: string;
-    if (isCastle) {
-      level2 = "The key move isn't about a single piece — your king's safety is the priority here. What does castling do for you?";
-    } else if (isCheck) {
-      level2 = `A ${piece} move here gives check and seizes the initiative. Which forcing line does that open up?`;
-    } else if (isCapture) {
-      const captured = move.captured ? PIECE_NAMES[move.captured] ?? "a piece" : "material";
-      level2 = `Look for a ${piece} move that wins material — there's ${captured === "material" ? "material" : `a ${captured}`} to take. Do you see it?`;
-    } else {
-      level2 = `The idea is a quiet ${piece} move that improves your position, not a capture. Where does your ${piece} most want to go?`;
-    }
-    const level3 = `The move is ${move.san} — your ${piece} from ${move.from} to ${move.to}.`;
-    return [generic1, level2, level3];
-  } catch {
-    return [generic1, generic1, generic1];
-  }
-}
-
-const MAX_HINT_LEVEL = 3;
+// ── Socratic, engine-grounded drill hints (shared generator) ─────────────
 
 drillsRouter.post("/:id/hint", requireAuth, (req, res) => {
   const userId = req.user!.id;
@@ -283,7 +236,7 @@ drillsRouter.post("/:id/hint", requireAuth, (req, res) => {
     return;
   }
 
-  const hints = buildDrillHints(drillRow.fen, drillRow.correctUci);
+  const hints = buildMoveHints(drillRow.fen, drillRow.correctUci);
   const level = Math.min(parsed.data.level, MAX_HINT_LEVEL);
   const hint = hints[level - 1] ?? hints[0];
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildDrillHints } from "./drills";
+import { buildMoveHints as buildDrillHints } from "../pipeline/moveHints";
 
 // Starting position: 1.e4 is a quiet (non-capture, non-check) pawn move.
 const START = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";

@@ -462,3 +462,14 @@ export const playMoveResponseSchema = z.object({
   san: z.string(),
 });
 export type PlayMoveResponse = z.infer<typeof playMoveResponseSchema>;
+
+export const playHintRequestSchema = z.object({
+  fen: z.string().min(10).max(120),
+});
+export type PlayHintRequest = z.infer<typeof playHintRequestSchema>;
+
+export const playHintResponseSchema = z.object({
+  /** Three graded, engine-grounded hints (nudge → idea → reveal). */
+  hints: z.array(z.string()).length(3),
+});
+export type PlayHintResponse = z.infer<typeof playHintResponseSchema>;

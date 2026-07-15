@@ -1,10 +1,14 @@
+import crypto from "node:crypto";
 import { Router } from "express";
 import { Chess } from "chess.js";
 import { requireAuth } from "../auth/middleware";
 import { asyncHandler } from "../asyncHandler";
+import { db } from "../db/client";
+import { coachEvents } from "../db/schema";
 import { enginePool } from "../engine/enginePool";
+import { buildMoveHints } from "../pipeline/moveHints";
 import type { EngineLine } from "../engine/stockfish";
-import { playMoveRequestSchema, type PlayMoveResponse } from "@shared/api";
+import { playMoveRequestSchema, playHintRequestSchema, type PlayMoveResponse, type PlayHintResponse } from "@shared/api";
 
 export const playRouter = Router();
 
@@ -87,5 +91,57 @@ playRouter.post(
     }
 
     res.json({ uci, san: move.san } satisfies PlayMoveResponse);
+  }),
+);
+
+/**
+ * In-match Coach: graded, engine-grounded hints for the CURRENT position. Finds
+ * the engine's best move (deep, single-PV) and describes it via the shared
+ * hint generator — the same "can't hallucinate" coaching as Drills, never LLM
+ * move-advice. Returns all three levels; the client reveals them progressively.
+ */
+playRouter.post(
+  "/hint",
+  requireAuth,
+  asyncHandler(async (req, res) => {
+    const parsed = playHintRequestSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: parsed.error.issues[0]?.message ?? "Invalid request." });
+      return;
+    }
+    let chess: Chess;
+    try {
+      chess = new Chess(parsed.data.fen);
+    } catch {
+      res.status(400).json({ error: "Illegal position." });
+      return;
+    }
+    if (chess.isGameOver() || chess.moves().length === 0) {
+      res.status(422).json({ error: "No move to hint — the game is over." });
+      return;
+    }
+
+    const evaluation = await enginePool.evaluate(parsed.data.fen, { depth: 16, multipv: 1 });
+    const bestUci = evaluation.lines[0]?.uci ?? evaluation.bestMove;
+    if (!bestUci) {
+      res.status(502).json({ error: "The engine did not return a move to hint." });
+      return;
+    }
+    const hints = buildMoveHints(parsed.data.fen, bestUci);
+
+    db.insert(coachEvents)
+      .values({
+        id: crypto.randomUUID(),
+        userId: req.user!.id,
+        kind: "hint",
+        drillId: null,
+        screen: "play",
+        role: null,
+        content: hints[0],
+        createdAt: Date.now(),
+      })
+      .run();
+
+    res.json({ hints } satisfies PlayHintResponse);
   }),
 );

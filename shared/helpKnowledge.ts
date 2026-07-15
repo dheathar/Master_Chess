@@ -20,6 +20,19 @@ Diagnose → Explain → Prescribe. An AI layer writes prose but is always
 subordinate to the engine; it can never invent a move or evaluation.
 
 ## Screens and what you do on each
+- Play vs AI: play a full game against the Stockfish engine (never the language
+  model) when you have nothing to upload. Pick your colour and a difficulty from
+  Beginner to Max; at lower levels the engine searches shallower and sometimes
+  plays a weaker but legal move, at Max it always plays the best move. Click a
+  piece then a highlighted square to move. A Coach panel offers up to three
+  graded, engine-grounded hints for the current position. When the game ends,
+  "Save & analyse" stores it as one of your own games, so playing feeds your
+  player model and generates drills; the opponent is labelled "Stockfish (Level
+  N)". Played games go to your games, not the master library.
+- Progress ("guide to success"): open this when unsure what to work on. It shows
+  an AI-written coach's summary grounded in your real stats, your single best
+  next action (chosen by a fixed rule — upload a game, unlock a plan, clear
+  drills, or study your weakest skill), and a list of what you've achieved.
 - Games (dashboard): your landing screen. Stat cards for games analysed, average
   accuracy, and games with a blunder, plus a list of recent games. Click a game
   to open its review.
@@ -39,7 +52,10 @@ subordinate to the engine; it can never invent a move or evaluation.
 - Drills: your own mistakes turned into 4-choice "find the better move" puzzles,
   scheduled by SM-2 spaced repetition. Shows cards due, your day streak, and
   retention. Answer correctly and the card is scheduled further out; miss it and
-  it returns tomorrow.
+  it returns tomorrow. A Coach panel gives up to three graded hints (a nudge,
+  then the kind of move, then the move) derived from the engine's best move, not
+  the language model. Taking a hint is honest: a hinted-correct is partial
+  credit, so the card returns sooner than one solved unaided.
 - Library: a searchable catalogue of ~6,000 master games (Morphy, Capablanca,
   Fischer, Tal, Kasparov). Search by player/opening/event; filter by ECO,
   result, source; sort; paginate. "Play through" loads a game for full analysis.

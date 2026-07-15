@@ -12,6 +12,7 @@ import type {
   LibraryGamesResponse,
   LoadLibraryGameResponse,
   PlayMoveResponse,
+  PlayHintResponse,
   DrillAttemptResult,
   DrillHintResponse,
   DrillStats,
@@ -142,6 +143,10 @@ export async function requestEngineMove(fen: string, difficulty: number): Promis
     method: "POST",
     body: JSON.stringify({ fen, difficulty }),
   });
+}
+
+export async function getPlayHint(fen: string): Promise<PlayHintResponse> {
+  return request<PlayHintResponse>("/play/hint", { method: "POST", body: JSON.stringify({ fen }) });
 }
 
 export async function getDueDrills(): Promise<{ drills: DueDrill[] }> {
