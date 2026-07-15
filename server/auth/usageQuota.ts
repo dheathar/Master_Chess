@@ -2,8 +2,21 @@ import { and, eq } from "drizzle-orm";
 import { db, rawSqlite } from "../db/client";
 import { usageCounters } from "../db/schema";
 
-const FREE_DAILY_ANALYSES = 5;
-const ANONYMOUS_DAILY_ANALYSES = 1;
+/**
+ * Daily analysis caps are configurable via env so a deployment can loosen or
+ * remove them without a code change. A value of 0 (or negative/empty) means
+ * unlimited. Defaults keep the product's original free/anonymous gating.
+ */
+function limitFromEnv(name: string, fallback: number): number | null {
+  const raw = process.env[name];
+  if (raw === undefined || raw === "") return fallback;
+  const n = Number(raw);
+  if (!Number.isFinite(n) || n <= 0) return null; // unlimited
+  return Math.floor(n);
+}
+
+const FREE_DAILY_ANALYSES = limitFromEnv("FREE_DAILY_ANALYSES", 5);
+const ANONYMOUS_DAILY_ANALYSES = limitFromEnv("ANONYMOUS_DAILY_ANALYSES", 1);
 
 function todayKey(): string {
   return new Date().toISOString().slice(0, 10);
