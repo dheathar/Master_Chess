@@ -102,8 +102,10 @@ journeyRouter.get(
       .from(reviewQueue)
       .where(and(eq(reviewQueue.userId, userId), eq(reviewQueue.suspended, false), lte(reviewQueue.dueAt, now)))
       .all().length;
+    // Retention reflects unaided recall — hinted attempts are excluded (see drills /stats).
     const attempts = db.select().from(drillAttempts).where(eq(drillAttempts.userId, userId)).all();
-    const retentionPct = attempts.length > 0 ? Math.round((attempts.filter((a) => a.correct).length / attempts.length) * 1000) / 10 : null;
+    const unaided = attempts.filter((a) => !a.hinted);
+    const retentionPct = unaided.length > 0 ? Math.round((unaided.filter((a) => a.correct).length / unaided.length) * 1000) / 10 : null;
 
     const facts: JourneyFacts = {
       gamesAnalyzed,

@@ -1,7 +1,7 @@
 import crypto from "node:crypto";
 import { Router } from "express";
 import { Chess } from "chess.js";
-import { and, eq, lte } from "drizzle-orm";
+import { and, desc, eq, gt, lte } from "drizzle-orm";
 import { db } from "../db/client";
 import { drills, reviewQueue, drillAttempts, skillScores, moves, coachEvents } from "../db/schema";
 import { requireAuth } from "../auth/middleware";
@@ -119,9 +119,12 @@ drillsRouter.get("/stats", requireAuth, (req, res) => {
     .where(and(eq(reviewQueue.userId, userId), eq(reviewQueue.suspended, false), lte(reviewQueue.dueAt, now)))
     .all().length;
 
+  // Retention = unaided recall: hinted attempts aren't a clean memory test, so
+  // they're excluded from the metric entirely (not counted for or against).
   const attempts = db.select().from(drillAttempts).where(eq(drillAttempts.userId, userId)).all();
+  const unaided = attempts.filter((a) => !a.hinted);
   const retentionPct =
-    attempts.length > 0 ? Math.round((attempts.filter((a) => a.correct).length / attempts.length) * 1000) / 10 : null;
+    unaided.length > 0 ? Math.round((unaided.filter((a) => a.correct).length / unaided.length) * 1000) / 10 : null;
 
   const stats: DrillStats = {
     dueToday,
@@ -176,7 +179,31 @@ drillsRouter.post("/:id/attempt", requireAuth, (req, res) => {
     lapses: queueRow.lapses,
     suspended: queueRow.suspended,
   };
-  const hinted = parsed.data.hinted;
+  // Server-verify hint use — never trust the client's flag alone. A hint logged
+  // for this drill since the user's previous attempt on it counts, even if the
+  // client claims hinted:false. Prevents gaming full SM-2 credit after peeking.
+  const lastAttempt = db
+    .select({ createdAt: drillAttempts.createdAt })
+    .from(drillAttempts)
+    .where(and(eq(drillAttempts.drillId, drillId), eq(drillAttempts.userId, userId)))
+    .orderBy(desc(drillAttempts.createdAt))
+    .limit(1)
+    .get();
+  const hintSince = lastAttempt?.createdAt ?? 0;
+  const hintEvent = db
+    .select({ id: coachEvents.id })
+    .from(coachEvents)
+    .where(
+      and(
+        eq(coachEvents.userId, userId),
+        eq(coachEvents.drillId, drillId),
+        eq(coachEvents.kind, "hint"),
+        gt(coachEvents.createdAt, hintSince),
+      ),
+    )
+    .limit(1)
+    .get();
+  const hinted = parsed.data.hinted || !!hintEvent;
   const next = nextReviewState(currentState, correct ? "correct" : "incorrect", currentMastery, Date.now(), hinted);
 
   // Only a genuinely-due review updates the schedule and counts toward

@@ -2,6 +2,7 @@ import crypto from "node:crypto";
 import { Router } from "express";
 import { Chess } from "chess.js";
 import { requireAuth } from "../auth/middleware";
+import { rateLimit } from "../auth/rateLimit";
 import { asyncHandler } from "../asyncHandler";
 import { db } from "../db/client";
 import { coachEvents } from "../db/schema";
@@ -11,6 +12,11 @@ import type { EngineLine } from "../engine/stockfish";
 import { playMoveRequestSchema, playHintRequestSchema, type PlayMoveResponse, type PlayHintResponse } from "@shared/api";
 
 export const playRouter = Router();
+
+// Each move/hint triggers a pooled Stockfish search; cap per-IP so a client
+// can't spam the engines and starve the analysis pipeline. Generous enough for
+// real play (a fast game is well under this).
+playRouter.use(rateLimit({ windowMs: 60_000, max: 80 }));
 
 /**
  * Difficulty is realised WITHOUT any engine-wrapper change: shallower search +
@@ -84,13 +90,16 @@ playRouter.post(
     }
 
     // Derive SAN from the chosen UCI on the real board (never trust a stale san).
-    const move = chess.move({ from: uci.slice(0, 2), to: uci.slice(2, 4), promotion: uci[4] as never });
-    if (!move) {
-      res.status(502).json({ error: "The engine returned an illegal move." });
+    // chess.js v1 THROWS on an illegal/unparseable move, so guard with try/catch.
+    let san: string;
+    try {
+      san = chess.move({ from: uci.slice(0, 2), to: uci.slice(2, 4), promotion: uci[4] as never }).san;
+    } catch {
+      res.status(502).json({ error: "The engine returned an unusable move." });
       return;
     }
 
-    res.json({ uci, san: move.san } satisfies PlayMoveResponse);
+    res.json({ uci, san } satisfies PlayMoveResponse);
   }),
 );
 
