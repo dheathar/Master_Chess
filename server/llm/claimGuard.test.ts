@@ -7,6 +7,7 @@ import type { GameFacts } from "./gameFacts";
 function fixtureFacts(overrides: Partial<GameFacts> = {}): GameFacts {
   return {
     playerColor: "white",
+    levelName: null,
     result: "1-0",
     outcome: "win",
     openingName: "Italian Game",

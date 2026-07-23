@@ -5,6 +5,7 @@ import type { GameFacts } from "./gameFacts";
 
 const facts: GameFacts = {
   playerColor: "white",
+  levelName: null,
   result: "1-0",
   outcome: "win",
   openingName: "Italian Game",

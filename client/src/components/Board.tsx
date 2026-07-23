@@ -1,10 +1,13 @@
+// Use the SOLID (filled) glyph for BOTH colours; colour is set in CSS. White
+// pieces then render as a filled white shape with a dark outline (chess.com
+// style), instead of the thin/faint outline glyphs that were hard to read.
 const PIECE_GLYPHS: Record<string, string> = {
-  K: "♔",
-  Q: "♕",
-  R: "♖",
-  B: "♗",
-  N: "♘",
-  P: "♙",
+  K: "♚",
+  Q: "♛",
+  R: "♜",
+  B: "♝",
+  N: "♞",
+  P: "♟",
   k: "♚",
   q: "♛",
   r: "♜",

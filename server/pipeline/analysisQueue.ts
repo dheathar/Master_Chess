@@ -219,6 +219,7 @@ async function enrichAnalysis(
       result: gameRow.result,
       openingName: gameRow.openingName,
       accuracy,
+      playerRating: gameRow.playerColor === "white" ? gameRow.whiteElo : gameRow.blackElo,
     });
     const narration = await narrateGame(facts);
     if (narration) {

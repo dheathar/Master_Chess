@@ -2489,3 +2489,18 @@ textarea::placeholder {
   background: transparent;
   border: 4px solid rgba(18, 146, 74, 0.55);
 }
+
+/* ── Board polish (chess.com-style: bigger pieces, high-contrast white, green/cream) ── */
+.board-square { background: #ebecd0; }        /* light square */
+.board-square.dark { background: #769656; }   /* dark square */
+.piece {
+  font-size: 54px;
+  color: #262421;                              /* black pieces: near-black fill */
+  -webkit-text-stroke: 1px #16160f;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.30);
+}
+.piece.white-piece {
+  color: #f7f6f2;                              /* white pieces: bright fill … */
+  -webkit-text-stroke: 1.4px #33322c;          /* … with a crisp dark outline */
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+}

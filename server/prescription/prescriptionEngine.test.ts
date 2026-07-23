@@ -77,7 +77,7 @@ describe("buildTrainingPlan", () => {
     const userId = seedUser(null);
     const plan = buildTrainingPlan(userId);
     expect(plan.focusBlocks).toHaveLength(0);
-    expect(plan.hypothesis).toMatch(/not enough analyzed games/i);
+    expect(plan.hypothesis).toMatch(/analyse a few of your own games|improvement opportunities/i);
   });
 
   it("excludes skills below the minimum sample-count threshold", () => {

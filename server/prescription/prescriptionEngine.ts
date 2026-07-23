@@ -55,14 +55,15 @@ function booksFor(skillId: SkillId): FocusBlock["books"] {
 }
 
 function buildHypothesis(plateauId: string | null, focus: FocusBlock[]): string {
+  const list = focus.map((f) => f.skillName.toLowerCase()).join(", ");
   if (plateauId) {
     const plateau = PLATEAUS.find((p) => p.id === plateauId);
-    if (plateau) return `${plateau.whatHappens} Right now that shows up most in: ${focus.map((f) => f.skillName.toLowerCase()).join(", ")}.`;
+    if (plateau) return `${plateau.whatHappens} Your fastest gains from here are in: ${list}.`;
   }
   if (focus.length === 0) {
-    return "Not enough analyzed games yet to diagnose a pattern — upload more games to build a training plan.";
+    return "Analyse a few of your own games and your biggest improvement opportunities will show up here — each one backed by the exact moves behind it.";
   }
-  return `Your weakest evidenced skills right now are ${focus.map((f) => f.skillName.toLowerCase()).join(", ")}. No plateau pattern is diagnosable yet (needs a PGN-header rating), but these are the lowest-mastery skills we have real evidence for.`;
+  return `Your biggest opportunities to gain rating right now are ${list} — the skills where focused work has the most upside, based on real evidence from your games.`;
 }
 
 /**

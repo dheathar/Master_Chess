@@ -1,4 +1,11 @@
+import { levelForRating, PLAYER_LEVEL_DEFINITIONS } from "@shared/taxonomy";
 import type { ClassifiedMove } from "../pipeline/classifier";
+
+/** Human level name from a rating (e.g. 1400 → "Casual club player"), or null if unrated. */
+function levelNameForRating(rating: number | null): string | null {
+  if (rating === null) return null;
+  return PLAYER_LEVEL_DEFINITIONS.find((l) => l.id === levelForRating(rating))?.name ?? null;
+}
 
 /** A mate transition is encoded as a ~100 000-magnitude cp value, not a real centipawn quantity. */
 const MATE_MAGNITUDE_CP = 30_000;
@@ -34,6 +41,8 @@ export function playerOutcome(result: string | null, playerColor: "white" | "bla
 
 export interface GameFacts {
   playerColor: "white" | "black";
+  /** The player's level name (from their PGN rating), for calibrating the coaching voice. Null if unrated. */
+  levelName: string | null;
   result: string | null;
   /** The result from the player's perspective — the guard rejects narratives that contradict it. */
   outcome: PlayerOutcome;
@@ -60,7 +69,7 @@ export interface GameFacts {
 
 export function buildGameFacts(
   moves: ClassifiedMove[],
-  input: { playerColor: "white" | "black"; result: string | null; openingName: string | null; accuracy: number | null },
+  input: { playerColor: "white" | "black"; result: string | null; openingName: string | null; accuracy: number | null; playerRating?: number | null },
 ): GameFacts {
   const ownMoves = moves.filter((move) => move.color === input.playerColor);
   const opponentMoves = moves.filter((move) => move.color !== input.playerColor);
@@ -76,6 +85,7 @@ export function buildGameFacts(
 
   return {
     playerColor: input.playerColor,
+    levelName: levelNameForRating(input.playerRating ?? null),
     result: input.result,
     outcome: playerOutcome(input.result, input.playerColor),
     openingName: sanitizeOpeningName(input.openingName),

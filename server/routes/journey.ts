@@ -48,7 +48,7 @@ export function decideNextAction(f: JourneyFacts): JourneyNextAction {
   }
   const focus = [...f.evidenced].filter((s) => s.sampleCount >= 3).sort((a, b) => a.mastery - b.mastery)[0];
   if (focus) {
-    return { title: `Work on ${focus.name.toLowerCase()}`, detail: `It's your lowest-scoring well-evidenced skill (mastery ${focus.mastery}). See your training plan for matched study.`, screen: "prescription" };
+    return { title: `Sharpen your ${focus.name.toLowerCase()}`, detail: `This is your biggest opportunity to gain rating right now — focused work here has the most upside. Your training plan has matched study for it.`, screen: "prescription" };
   }
   return { title: "Upload a recent game", detail: "Keep your model current by analysing your latest play.", screen: "upload" };
 }
@@ -168,9 +168,12 @@ journeyRouter.get(
     const provider = getLlmProvider();
     if (provider && (await provider.isAvailable())) {
       const system =
-        "You are a chess improvement coach writing a short, encouraging but honest progress note for a student. " +
-        "Use ONLY the facts provided — never invent numbers, moves, skills, or claims. 3–5 sentences, second person, " +
-        "no filler praise. End by pointing to the single next action given.";
+        "You are a supportive chess coach writing a short progress note for a student. " +
+        "Use ONLY the facts provided — never invent numbers, moves, skills, or claims. 3–5 sentences, second person. " +
+        "Frame it around growth and opportunity, not deficits: talk about the biggest chances to improve and gain rating, " +
+        "not 'weaknesses' or 'lowest' scores. Keep the numbers honest but the tone motivating — no hollow praise. " +
+        "Match your vocabulary to the student's level (given below): a beginner needs plain language and one clear idea; " +
+        "a stronger player can handle precise chess terms. End by pointing to the single next action given.";
       const prompt =
         `Facts:\n` +
         `- Games analysed: ${facts.gamesAnalyzed}\n` +
@@ -179,7 +182,7 @@ journeyRouter.get(
         `- Diagnosed pattern: ${facts.plateauName ?? "none yet"}\n` +
         `- Drills due now: ${facts.dueDrills}; drills completed: ${facts.drillsCompleted}` +
         `${facts.retentionPct !== null ? ` at ${facts.retentionPct}% retention` : ""}\n` +
-        `- Lowest well-evidenced skill: ${[...facts.evidenced].filter((s) => s.sampleCount >= 3).sort((a, b) => a.mastery - b.mastery)[0]?.name ?? "n/a"}\n` +
+        `- Biggest opportunity (lowest well-evidenced skill): ${[...facts.evidenced].filter((s) => s.sampleCount >= 3).sort((a, b) => a.mastery - b.mastery)[0]?.name ?? "n/a"}\n` +
         `- Next action to recommend: ${nextAction.title} — ${nextAction.detail}\n\n` +
         `Write the coaching note now.`;
       try {

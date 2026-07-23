@@ -4,13 +4,19 @@ import type { GameFacts } from "./gameFacts";
 import type { LlmNarrative } from "@shared/api";
 
 function buildPrompt(facts: GameFacts): { system: string; prompt: string } {
+  const levelGuidance = facts.levelName
+    ? `The student is a ${facts.levelName}. Match your vocabulary and depth to that level: a beginner needs plain language and one clear takeaway; a stronger player can handle precise chess terms and a little more depth. `
+    : "";
   const system =
-    "You are a chess coach writing a short post-game note for a student. " +
+    "You are a warm, encouraging chess coach writing a short post-game note for a student. " +
+    levelGuidance +
     "ONLY reference moves, move numbers, and centipawn/evaluation figures explicitly given to you in the facts below — " +
-    "never invent a move, number, or claim not stated there. Keep it to 2-4 sentences, second person, honest and specific, " +
-    'no filler praise. Respond with strict JSON of the shape {"narrative": "..."} and nothing else.';
+    "never invent a move, number, or claim not stated there. Frame it around what to improve next (opportunity), not just what went wrong. " +
+    "Keep it to 2-4 sentences, second person, honest and specific, no hollow praise. " +
+    'Respond with strict JSON of the shape {"narrative": "..."} and nothing else.';
 
   const lines = [
+    facts.levelName ? `Student level: ${facts.levelName}` : null,
     facts.result ? `Result: ${facts.result}` : null,
     facts.openingName ? `Opening: ${facts.openingName}` : null,
     facts.accuracy !== null ? `Your accuracy this game: ${facts.accuracy}%` : null,
